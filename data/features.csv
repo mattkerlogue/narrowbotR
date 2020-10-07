@@ -1,0 +1,36 @@
+feature,SAP_OBJECT_TYPE,obj_type_label,status
+aqueducts,001,aqueduct,in use
+aqueducts,131,abandoned aqueduct,abandoned
+boat lifts,NA,boat lift,in use
+bridges,002,track bridge,in use
+bridges,003,road bridge,in use
+bridges,004,towpath bridge,in use
+bridges,046,footbridge,in use
+bridges,077,pipe bridge,in use
+bridges,117,bridge abutments,in use
+bridges,129,railway bridge,in use
+bridges,131,abandoned bridge,abandoned
+culverts,005,culvert,in use
+culverts,035,towpath culvert,in use
+culverts,078,feeder culvert,in use
+culverts,130,alledged culvert,in use
+culverts,131,abandoned culvert,in use
+dry docks,007,dry dock,in use
+dry docks,131,abandoned dry dock,abandonded
+locks,010,lock,in use
+locks,018,wiered lock,in use
+locks,038,disused lock,in use
+locks,131,abandoned lock,abandoned
+pumping stations,011,pumping station,in use
+pumping stations,131,abandoned pumpin station,abandoned
+slipways,NA,slipway,in use
+sluices,013,sluice,in use
+sluices,130,alleged sluice,in use
+sluices,131,abandoned sluice,abandoned
+tunnel portals,097,tunnel portal,in use
+weirs,016,weir,in use
+weirs,017,river weir,in use
+weirs,031,cascade weir,in use
+weirs,131,abandoned wier,abandoned
+wharves,105,wharf,in use
+winding holes,064,winding hole,in use

@@ -1,0 +1,21 @@
+feature,geo_type,catalogue_url,feed_url,last_updated
+pumping stations,point,https://data-canalrivertrust.opendata.arcgis.com/datasets/pumping-stations-view-public,https://opendata.arcgis.com/datasets/fe1e9681f160445c8cd3c60d60eec880_0.geojson,2019-12-18
+winding holes,point,https://data-canalrivertrust.opendata.arcgis.com/datasets/winding-holes-and-turning-points-view-public,https://opendata.arcgis.com/datasets/5bd75fc15a11440092501a8d67e2e7da_0.geojson,2019-10-05
+wharves,point,https://data-canalrivertrust.opendata.arcgis.com/datasets/wharves-view-public,https://opendata.arcgis.com/datasets/81565a716610475585f5b7decf7b36fc_0.geojson,2019-10-05
+embankments,polygon,https://data-canalrivertrust.opendata.arcgis.com/datasets/embankments-view-public,https://opendata.arcgis.com/datasets/9c0fa84ede324ae1bbe61141032c4dc6_0.geojson,2019-10-05
+dry docks,point,https://data-canalrivertrust.opendata.arcgis.com/datasets/dry-dock-view-public,https://opendata.arcgis.com/datasets/93247b7fde44405c928656e7056c3084_0.geojson,2019-10-05
+culverts,point,https://data-canalrivertrust.opendata.arcgis.com/datasets/culverts-view-public,https://opendata.arcgis.com/datasets/e30c9866f51d44ac886ec2c10cb19e8b_0.geojson,2019-12-11
+bridges,point,https://data-canalrivertrust.opendata.arcgis.com/datasets/bridges-view-public,https://opendata.arcgis.com/datasets/bf1a0763582242e4b5243bad98f48dad_0.geojson,2019-12-11
+aqueducts,point,https://data-canalrivertrust.opendata.arcgis.com/datasets/aqueducts-view-public,https://opendata.arcgis.com/datasets/da769406e56d415b8283499dc15918cf_0.geojson,2019-10-05
+boat lifts,point,https://data-canalrivertrust.opendata.arcgis.com/datasets/boat-lifts-view-public,https://opendata.arcgis.com/datasets/c8c9d9151335445bae2c13bdcdc37916_0.geojson,2019-10-05
+docks,polygon,https://data-canalrivertrust.opendata.arcgis.com/datasets/docks-view-public,https://opendata.arcgis.com/datasets/532f15feed6741b68e4260712b6c8591_0.geojson,2019-10-05
+slipways,point,https://data-canalrivertrust.opendata.arcgis.com/datasets/slipway-view-public,https://opendata.arcgis.com/datasets/2e8c170a5ef343839fc71f4a4a2d6ccc_0.geojson,2019-10-05
+reservoirs,polygon,https://data-canalrivertrust.opendata.arcgis.com/datasets/reservoir-polygons-view-public,https://opendata.arcgis.com/datasets/d4a865b27dbb4f6083dde800d2b5d31d_0.geojson,2019-10-05
+"lakes, ponds and fisheries",polygon,https://data-canalrivertrust.opendata.arcgis.com/datasets/lakes-ponds-and-fisheries-view-public,https://opendata.arcgis.com/datasets/93dfc8f5451340b28c43925f89a112b8_0.geojson,2019-10-05
+locks,point,https://data-canalrivertrust.opendata.arcgis.com/datasets/locks-view-public,https://opendata.arcgis.com/datasets/dcf8c84a27804b4e9c4d345f6207ebae_0.geojson,2019-10-05
+sluices,point,https://data-canalrivertrust.opendata.arcgis.com/datasets/sluices-view-public,https://opendata.arcgis.com/datasets/9417b2f8de334baeb41d0667e343b630_0.geojson,2019-10-05
+tunnels,line,https://data-canalrivertrust.opendata.arcgis.com/datasets/tunnels-view-public,https://opendata.arcgis.com/datasets/a12f136c4ca4420b9af5dbb56a9c8163_0.geojson,2019-10-05
+tunnel portals,point,https://data-canalrivertrust.opendata.arcgis.com/datasets/tunnel-portal-view-public,https://opendata.arcgis.com/datasets/6bf74dc12efd436ab5f358185db17905_0.geojson,2019-10-05
+weirs,point,https://data-canalrivertrust.opendata.arcgis.com/datasets/weirs-view-public,https://opendata.arcgis.com/datasets/f040a106c08c4f419de814a37721434f_0.geojson,2019-12-19
+canal kms,line,https://data-canalrivertrust.opendata.arcgis.com/datasets/canals-km-view-public,https://opendata.arcgis.com/datasets/669939644ccf41b1b0440c47aa7d0491_0.geojson,2020-01-22
+crt planning buffers,polygon,https://data-canalrivertrust.opendata.arcgis.com/datasets/canal-river-trust-planning-buffer,https://opendata.arcgis.com/datasets/724100f301db49a68d3ac3434a7696e1_0.geojson,2018-10-05
