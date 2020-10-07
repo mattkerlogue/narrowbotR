@@ -22,4 +22,4 @@ points_combined <- points %>%
          name = sap_description,
          obj_type = sap_object_type)
 
-write_csv(points_combined,"data/all_points.csv")
+write_rds(points_combined,"data/all_points.RDS")
