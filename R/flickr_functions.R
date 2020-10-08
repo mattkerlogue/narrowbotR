@@ -1,11 +1,27 @@
-flickr_get_photo_info <- function(key, photo_id, secret) {
+# Get information about a specific photo
+flickr_get_photo_info <- function(key = NULL, photo_id, photo_secret) {
+  
+  if (is.null(key)) {
+    key <- Sys.getenv("FLICKR_API_KEY")
+    if (key == "") {
+      stop("Flickr API key not set")
+    }
+  }
+  
+  if (missing(photo_id)) {
+    stop("photo_id missing")
+  }
+  
+  if (missing(photo_secret)) {
+    stop("photo_secret missing")
+  }
   
   # create flickr api url
   url <- paste0(
     "https://www.flickr.com/services/rest/?method=flickr.photos.getInfo",
     "&api_key=", key,
-    "&photo_id=",photo_id,
-    "&secret=",secret,
+    "&photo_id=", photo_id,
+    "&secret=", photo_secret,
     "&format=json",
     "&nojsoncallback=1")
   
@@ -15,6 +31,7 @@ flickr_get_photo_info <- function(key, photo_id, secret) {
   # extract relevant info
   info <- tibble::tibble(
     username = r$photo$owner$username,
+    realname = r$photo$owner$realname,
     licence = r$photo$license,
     description = r$photo$description$`_content`,
     date = lubridate::as_datetime(r$photo$dates$taken),
@@ -26,10 +43,27 @@ flickr_get_photo_info <- function(key, photo_id, secret) {
   
 }
 
+# Get the 100 closest photos to the desired position and pull info
+flickr_get_photo_list <- function(key = NULL, lat, long) {
 
-flickr_get_photo_list <- function(key, lat, long) {
+  if (is.null(key)) {
+    key <- Sys.getenv("FLICKR_API_KEY")
+    if (key == "") {
+      stop("Flickr API key not set")
+    }
+  }
+  
+  if (missing(lat)) {
+    stop("lat missing")
+  }
+  
+  if (missing(long)) {
+    stop("long missing")
+  }
   
   # construct flickr api url
+  # using lat/long will sort in geographical proximity
+  # choose within 100m of the position (radius=0.1)
   url <- paste0(
     "https://www.flickr.com/services/rest/?method=flickr.photos.search",
     "&api_key=", key,
@@ -60,7 +94,7 @@ flickr_get_photo_list <- function(key, lat, long) {
       info = map2(id, secret, 
                   ~flickr_get_photo_info(key = key, 
                                          photo_id = .x, 
-                                         secret = .y))
+                                         photo_secret = .y))
       ) %>%
     unnest(info) %>%
     mutate(
