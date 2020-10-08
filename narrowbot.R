@@ -18,13 +18,13 @@ all_points <- readRDS("data/all_points.RDS")
 
 # pick a point
 place <- all_points %>%
-  filter(feature == "locks") %>%
-  sample_n(1) %>%
+  dplyr::filter(feature == "locks") %>%
+  dplyr::sample_n(1) %>%
   as.list()
 
 coords <- sf::st_coordinates(place$geometry) %>% 
   as.list() %>% 
-  set_names(c("long", "lat"))
+  purrr::set_names(c("long", "lat"))
 
 place_photos <- flickr_get_photo_list(lat = coords$lat, long = coords$long)
 
