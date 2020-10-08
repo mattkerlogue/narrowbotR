@@ -40,7 +40,7 @@ flickr_get_photo_list <- function(key, lat, long) {
     "&media=photos",
     "&lat=", lat,
     "&lon=", long,
-    "&radius=0.2",
+    "&radius=0.1",
     "&per_page=100",
     "&page=1",
     "&format=json",
