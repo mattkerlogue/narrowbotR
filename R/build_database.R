@@ -17,7 +17,7 @@ points_combined <- points %>%
   )) %>%
   bind_cols(sf::st_coordinates(.$geometry) %>% 
               tibble::as_tibble() %>% 
-              purrr::set_names(c("lat", "long"))) %>%
+              purrr::set_names(c("long", "lat"))) %>%
   dplyr::left_join(features, by = c("feature", "SAP_OBJECT_TYPE")) %>%
   dplyr::select(-Angle, -ANGLE, -OBJECTID) %>%
   janitor::clean_names() %>%
