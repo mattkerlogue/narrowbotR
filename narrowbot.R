@@ -79,7 +79,7 @@ status_msg <- paste0(tweet_text, collapse = "")
 
 message("Stage: Tweet written")
 
-cat(status_msg)
+
 
 post_geo_tweet(
   status = status_msg,
@@ -89,3 +89,7 @@ post_geo_tweet(
   )
 
 message("Stage: Action complete")
+
+message("\n====\nTweet:\n")
+
+cat(status_msg)
