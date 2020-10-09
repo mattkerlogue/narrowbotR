@@ -3,6 +3,8 @@ library(dplyr)
 source("R/post_geo_tweet.R")
 source("R/flickr_functions.R")
 
+message("Stage: functions loaded")
+
 # create twitter token
 narrowbotr_token <- rtweet::create_token(
   app = "narrowbotr",
@@ -11,6 +13,8 @@ narrowbotr_token <- rtweet::create_token(
   access_token =    Sys.getenv("TWITTER_ACCESS_TOKEN"),
   access_secret =   Sys.getenv("TWITTER_ACCESS_TOKEN_SECRET")
 )
+
+message("Stage: Twitter token created")
 
 # load points data
 all_points <- readRDS("data/all_points.RDS")
@@ -22,12 +26,18 @@ place <- all_points %>%
   dplyr::sample_n(1) %>%
   as.list()
 
+message("Stage: Picked a place [", place$name, ", lat: ", place$lat, ", long: ", place$long, "]")
+
 place_photos <- flickr_get_photo_list(lat = place$lat, long = place$long)
+
+message("Stage: Got photos")
 
 if (is.null(place_photos)) {
   photo_select <- NULL
+  message("Stage: No photo selected\n")
 } else {
   photo_select <- flickr_pick_photo(place_photos)
+  message("Stage: Photo selected\n")
 }
 
 tmp_file <- tempfile()
@@ -44,6 +54,8 @@ if (is.null(photo_select)) {
 }
 
 download.file(img_url, tmp_file)
+
+message("Stage: Photo downloaded")
 
 base_message <- c(
   "📍: ", place$name, "\n",
@@ -65,9 +77,13 @@ if (is.null(photo_select)) {
 
 status_msg <- paste0(tweet_text, collapse = "")
 
+message("Stage: Tweet written")
+
 post_geo_tweet(
   status = status_msg,
   media = tmp_file,
   lat = place$lat,
   long = place$long
   )
+
+message("Stage: Action complete")
