@@ -5,7 +5,7 @@ install_runner_packages <- function() {
   pkgs <- c("dplyr", "purrr", "readr", "tidyr", "rtweet",
             "janitor", "lubridate", "stringr", "suncalc")
   
-  install.packages(pkgs)
+  install.packages(pkgs, repos = "https://cloud.r-project.org/")
   invisible(NULL)
   
 }
@@ -17,7 +17,7 @@ install_maintenance_packages <- function() {
 pkgs <- c("dplyr", "purrr", "readr", "tidyr", "rtweet", "sf",
           "janitor", "lubridate", "stringr", "suncalc")
 
-install.packages(pkgs)
+install.packages(pkgs, repos = "https://cloud.r-project.org/")
 invisible(NULL)
 
 }
