@@ -3,6 +3,7 @@ name: narrowbotR
 on:
   schedule:
     - cron:   '10,40 7-20 * * *'
+  workflow_dispatch
 
 jobs:
   narrowbotR-post:
