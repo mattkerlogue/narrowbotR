@@ -18,13 +18,12 @@ all_points <- readRDS("data/all_points.RDS")
 
 # pick a point
 place <- all_points %>%
+  dplyr::select(-geometry) %>%
   dplyr::filter(feature == "locks") %>%
   dplyr::sample_n(1) %>%
   as.list()
 
-coords <- sf::st_coordinates(place$geometry) %>% 
-  as.list() %>% 
-  purrr::set_names(c("long", "lat"))
+place_photos <- flickr_get_photo_list(lat = place$lat, long = place$long)
 
 place_photos <- flickr_get_photo_list(lat = coords$lat, long = coords$long)
 
@@ -39,7 +38,7 @@ tmp_file <- tempfile()
 if (is.null(photo_select)) {
   img_url <- paste0(
     "https://api.mapbox.com/styles/v1/mapbox/satellite-v9/static/",
-    paste0(coords$long, ",", coords$lat, ",", 16),
+    paste0(place$long, ",", place$lat, ",", 16),
     "/600x400?access_token=",
     Sys.getenv("MAPBOX_PAT")
   )
@@ -53,9 +52,9 @@ base_message <- c(
   "📍: ", place$name, "\n",
   "ℹ️: ", place$obj_type_label, "\n",
   "🗺: ",  paste0("https://www.openstreetmap.org/",
-                  "?mlat=", coords$lat,
-                  "&mlon=", coords$long,
-                  "#map=17/", coords$lat, "/", coords$long)
+                  "?mlat=", place$lat,
+                  "&mlon=", place$long,
+                  "#map=17/", place$lat, "/", place$long)
 )
 
 if (is.null(photo_select)) {
@@ -72,6 +71,6 @@ status_msg <- paste0(tweet_text, collapse = "")
 post_geo_tweet(
   status = status_msg,
   media = tmp_file,
-  lat = coords$lat,
-  long = coords$long
+  lat = place$lat,
+  long = place$long
   )

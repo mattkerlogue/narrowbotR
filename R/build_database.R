@@ -1,3 +1,5 @@
+library(dplyr)
+
 feeds <- readr::read_csv("data/feeds.csv")
 
 points <- feeds %>%
@@ -13,6 +15,9 @@ points_combined <- points %>%
     !is.na(ANGLE) ~ as.double(ANGLE),
     TRUE ~ NA_real_
   )) %>%
+  bind_cols(sf::st_coordinates(.$geometry) %>% 
+              tibble::as_tibble() %>% 
+              purrr::set_names(c("lat", "long"))) %>%
   dplyr::left_join(features, by = c("feature", "SAP_OBJECT_TYPE")) %>%
   dplyr::select(-Angle, -ANGLE, -OBJECTID) %>%
   janitor::clean_names() %>%
