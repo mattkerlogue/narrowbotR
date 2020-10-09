@@ -87,32 +87,40 @@ flickr_get_photo_list <- function(key = NULL, lat, long) {
   # extract the photo data
   p <- r$photos$photo
   
-  # get info for photos, add sunlight hours
-  # drop photos before sunrise or after sunset
-  p <- p %>% 
-    dplyr::mutate(
-      info = purrr::map2(id, secret, 
-                  ~flickr_get_photo_info(key = key, 
-                                         photo_id = .x, 
-                                         photo_secret = .y))
+  # skip if less than 10 photos returned
+  # suggests uninteresting/remote place
+  if (length(p) < 10) {
+    p <- NULL
+  } else {
+    
+    # get info for photos, add sunlight hours
+    # drop photos before sunrise or after sunset
+    p <- p %>% 
+      dplyr::mutate(
+        info = purrr::map2(id, secret, 
+                           ~flickr_get_photo_info(key = key, 
+                                                  photo_id = .x, 
+                                                  photo_secret = .y))
       ) %>%
-    tidyr::unnest(info) %>%
-    dplyr::mutate(
-      suntimes = purrr::map(
-        as.Date(date), 
-        ~suncalc::getSunlightTimes(date = .x, lat = lat, lon = long, 
-                                   keep = c("sunrise", "goldenHourEnd", 
-                                            "goldenHour", "sunset"))),
-      suntimes = purrr::map(suntimes, ~dplyr::select(.x, -date, -lat, -lon))
+      tidyr::unnest(info) %>%
+      dplyr::mutate(
+        suntimes = purrr::map(
+          as.Date(date), 
+          ~suncalc::getSunlightTimes(date = .x, lat = lat, lon = long, 
+                                     keep = c("sunrise", "goldenHourEnd", 
+                                              "goldenHour", "sunset"))),
+        suntimes = purrr::map(suntimes, ~dplyr::select(.x, -date, -lat, -lon))
       ) %>% 
-    tidyr::unnest(suntimes) %>%
-    dplyr::mutate(after_sunset = date > sunset, 
-           before_sunrise = date < sunrise, 
-           goldenhour = dplyr::if_else(
-             (date >= sunrise & date <= goldenHourEnd) | 
-               (date <= sunset & date >= goldenHour), TRUE, FALSE)) %>% 
-    dplyr::filter(!after_sunset) %>%
-    dplyr::filter(!before_sunrise)
+      tidyr::unnest(suntimes) %>%
+      dplyr::mutate(after_sunset = date > sunset, 
+                    before_sunrise = date < sunrise, 
+                    goldenhour = dplyr::if_else(
+                      (date >= sunrise & date <= goldenHourEnd) | 
+                        (date <= sunset & date >= goldenHour), TRUE, FALSE)) %>% 
+      dplyr::filter(!after_sunset) %>%
+      dplyr::filter(!before_sunrise)
+    
+  }
   
   return(p)
   

@@ -24,9 +24,7 @@ place <- all_points %>%
 
 place_photos <- flickr_get_photo_list(lat = place$lat, long = place$long)
 
-place_photos <- flickr_get_photo_list(lat = coords$lat, long = coords$long)
-
-if (nrow(place_photos) < 10) {
+if (is.null(place_photos)) {
   photo_select <- NULL
 } else {
   photo_select <- flickr_pick_photo(place_photos)
