@@ -1,6 +1,5 @@
-# load libs & functions
-library(tidyverse)
-library(sf)
+# load functions
+library(dplyr)
 source("R/post_geo_tweet.R")
 source("R/flickr_functions.R")
 
