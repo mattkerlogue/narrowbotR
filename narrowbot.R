@@ -26,7 +26,9 @@ place <- all_points %>%
   dplyr::sample_n(1) %>%
   as.list()
 
-message("Stage: Picked a place [", place$name, ", lat: ", place$lat, ", long: ", place$long, "]")
+message("Stage: Picked a place [", place$name,
+        ", lat: ", place$lat,
+        ", long: ", place$long, "]")
 
 place_photos <- flickr_get_photo_list(lat = place$lat, long = place$long)
 
