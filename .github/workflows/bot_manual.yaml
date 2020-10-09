@@ -1,11 +1,9 @@
-name: narrowbotR
+name: manual-narrowbotR
 
-on:
-  schedule:
-    - cron:  '10,40 7-20 * * *'
+on: workflow_dispatch
 
 jobs:
-  narrowbotR-post:
+  narrowbotR-manual-post:
     runs-on: macos-latest
     env:
       FLICKR_API_KEY: ${{ secrets.FLICKR_API_KEY }}
