@@ -14,4 +14,4 @@ jobs:
           R --version
           Rscript --version
       - name: Install R packages
-          run: Rscript -e 'install.packages("jsonlite", verbose = TRUE)'
+        run: Rscript -e 'install.packages("jsonlite", verbose = TRUE)'
