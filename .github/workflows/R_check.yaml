@@ -18,4 +18,4 @@ jobs:
       - name: Install R packages
         run: Rscript -e 'install.packages("jsonlite", repos = "https://cloud.r-project.org/", verbose = TRUE)'
       - name: Check secret
-        run: Rscript -e 'x <- length(Sys.getenv("FLICKR_API_KEY"))' -e 'message("API length is ", x)'
+        run: Rscript -e 'message("FLICKR API length is ", nchar(Sys.getenv("FLICKR_API_KEY")))'
