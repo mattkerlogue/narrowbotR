@@ -1,0 +1,17 @@
+name: test-r
+
+# Run this workflow manually to check R set-up
+on: workflow_dispatch
+
+jobs:
+  test-r:
+    name: Test R setup
+    runs-on: macos-latest
+
+    steps:
+      - name: R available?
+        run: | 
+          R --version
+          Rscript --version
+      - name: Install R packages
+          Rscript -e 'install.packages("jsonlite", verbose = TRUE)'
