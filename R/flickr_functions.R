@@ -136,6 +136,18 @@ canal_word_count <- function(string) {
   
 }
 
+# simple rescale function taken from scales::rescale.numeric
+# to avoid having to install and load the scales package
+rescale <- function (x, to = c(0, 1)) {
+  
+  from <- range(x)
+  
+  rx <- (x - from[1])/diff(from) * diff(to) + to[1]
+  
+  return(rx)
+  
+}
+
 # score photos
 # The scoring algorithm takes into account:
 #   * the approx length of titles and 
@@ -179,7 +191,7 @@ flickr_photo_score <- function(df) {
     dplyr::arrange(offset) %>%
     dplyr::mutate(
       offset_rev = rev(sqrt(as.numeric(offset))),
-      alt_off = scales::rescale(as.numeric(offset), to = c(5,1)),
+      alt_off = rescale(as.numeric(offset), c(5,1)),
       final_score = word_score * dist_rev * gold * alt_off * canal_word_score
       ) %>%
     dplyr::select(id, owner, final_score) %>%
