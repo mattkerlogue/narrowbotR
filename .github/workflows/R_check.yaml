@@ -7,6 +7,8 @@ jobs:
   test-r:
     name: Test R setup
     runs-on: macos-latest
+    env:
+      FLICKR_API_KEY: ${{ secrets.FLICKR_API_KEY }}
 
     steps:
       - name: R available?
@@ -15,3 +17,5 @@ jobs:
           Rscript --version
       - name: Install R packages
         run: Rscript -e 'install.packages("jsonlite", repos = "https://cloud.r-project.org/", verbose = TRUE)'
+      - name: Check secret
+        run: Rscript -e 'x <- length(Sys.getenv("FLICKR_API_KEY"))' -e 'message("API length is ", x)'
