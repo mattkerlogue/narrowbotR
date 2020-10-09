@@ -12,7 +12,7 @@ install_runner_packages <- function() {
 
 # packages for maintenance
 # as runner but with sf
-install_runner_packages <- function() {
+install_maintenance_packages <- function() {
 
 pkgs <- c("dplyr", "purrr", "readr", "tidyr", "rtweet", "sf",
           "janitor", "lubridate", "stringr", "suncalc")
