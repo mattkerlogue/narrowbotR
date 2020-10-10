@@ -22,7 +22,7 @@ all_points <- readRDS("data/all_points.RDS")
 # pick a point
 place <- all_points %>%
   dplyr::select(-geometry) %>%
-  dplyr::filter(str_detect(feature, "culvert", negate = TRUE)) %>%
+  dplyr::filter(stringr::str_detect(feature, "culvert", negate = TRUE)) %>%
   dplyr::sample_n(1) %>%
   as.list()
 
