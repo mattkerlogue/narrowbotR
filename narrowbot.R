@@ -73,7 +73,7 @@ if (is.null(photo_select)) {
 } else {
   tweet_text <- c(
     base_message, "\n",
-    "📸: Photo by ", str_squish(photo_select$realname), " on Flickr ",
+    "📸: Photo by ", stringr::str_squish(photo_select$realname), " on Flickr ",
     photo_select$photo_url)
 }
 
