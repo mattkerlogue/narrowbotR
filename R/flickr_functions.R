@@ -139,7 +139,7 @@ canal_word_count <- function(string) {
   
   canal_words <- c("canal", "lock", "water", "boat", "gate", "bird", "duck", 
                    "swan", "river", "aqueduct", "towpath", "barge", "keeper",
-                   "tunnel")
+                   "tunnel", "narrow")
   
   counter <- 0
   
