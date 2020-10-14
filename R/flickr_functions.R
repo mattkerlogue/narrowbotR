@@ -181,10 +181,10 @@ flickr_photo_score <- function(df) {
   n_df <- df %>%
     dplyr::select(id, owner, title, description, date, goldenhour) %>%
     dplyr::mutate(
-      title_words = purrr::map_dbl(title, ~max(str_count(., " "),1)),
+      title_words = purrr::map_dbl(title, ~max(stringr::str_count(., " "),1)),
       desc_words = stringr::str_count(description, " "),
       total_words = title_words + desc_words,
-      desc_words2 = log10(purrr::map_dbl(description, ~max(str_count(., " "),1))),
+      desc_words2 = log10(purrr::map_dbl(description, ~max(stringr::str_count(., " "),1))),
       word_score = purrr::pmap_dbl(list(title_words, desc_words2), sum, na.rm = TRUE),
       canal_words = canal_word_count(title) + canal_word_count(description),
       canal_word_score = purrr::map_dbl(canal_words^2, ~max(., 1)),
