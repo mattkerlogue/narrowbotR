@@ -89,7 +89,9 @@ flickr_get_photo_list <- function(key = NULL, lat, long) {
   
   # skip if less than 10 photos returned
   # suggests uninteresting/remote place
-  if (nrow(p) < 10) {
+  if (length(p) == 0) {
+    p <- NULL
+  } else if (nrow(p) < 10) {
     p <- NULL
   } else {
     
@@ -119,7 +121,13 @@ flickr_get_photo_list <- function(key = NULL, lat, long) {
                         (date <= sunset & date >= goldenHour), TRUE, FALSE)) %>% 
       dplyr::filter(!after_sunset) %>%
       dplyr::filter(!before_sunrise)
-    
+   
+    # if after removing night-time photos there are only a very small number
+    # then exclude again as might be an uninteresting place
+    if (nrow(p) < 3) {
+      p <- NULL
+    }
+     
   }
   
   return(p)
