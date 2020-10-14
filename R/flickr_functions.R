@@ -89,7 +89,7 @@ flickr_get_photo_list <- function(key = NULL, lat, long) {
   
   # skip if less than 10 photos returned
   # suggests uninteresting/remote place
-  if (length(p) < 10) {
+  if (nrow(p) < 10) {
     p <- NULL
   } else {
     
