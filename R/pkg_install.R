@@ -1,7 +1,9 @@
 
 # packages for regular running
 install_runner_packages <- function() {
-
+  
+  install.packages("jsonlite", repos = "https://cloud.r-project.org/", type = "source")
+  
   pkgs <- c("dplyr", "purrr", "readr", "tidyr", "rtweet",
             "janitor", "lubridate", "stringr", "data.table", "suncalc")
   
@@ -14,10 +16,12 @@ install_runner_packages <- function() {
 # as runner but with sf
 install_maintenance_packages <- function() {
 
-pkgs <- c("dplyr", "purrr", "readr", "tidyr", "rtweet", "sf",
-          "janitor", "lubridate", "stringr", "data.table", "suncalc")
+  install.packages("jsonlite", repos = "https://cloud.r-project.org/", type = "source")
+  
+  pkgs <- c("dplyr", "purrr", "readr", "tidyr", "rtweet", "sf",
+            "janitor", "lubridate", "stringr", "data.table", "suncalc")
 
-install.packages(pkgs, repos = "https://cloud.r-project.org/")
-invisible(NULL)
+  install.packages(pkgs, repos = "https://cloud.r-project.org/")
+  invisible(NULL)
 
 }
