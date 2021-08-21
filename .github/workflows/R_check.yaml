@@ -6,7 +6,7 @@ on: workflow_dispatch
 jobs:
   test-r:
     name: Test R setup
-    runs-on: macos-latest
+    runs-on: ubuntu-latest
     env:
       FLICKR_API_KEY: ${{ secrets.FLICKR_API_KEY }}
 
@@ -17,5 +17,3 @@ jobs:
           Rscript --version
       - name: Install R packages
         run: Rscript -e 'install.packages("jsonlite", repos = "https://cloud.r-project.org/", verbose = TRUE, type = "source")'
-      - name: Check secret
-        run: Rscript -e 'message("FLICKR API length is ", nchar(Sys.getenv("FLICKR_API_KEY")))'
