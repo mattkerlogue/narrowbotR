@@ -9,12 +9,13 @@ jobs:
     runs-on: ubuntu-latest
     env:
       FLICKR_API_KEY: ${{ secrets.FLICKR_API_KEY }}
-      R_LIBS_USER: tempdir/Library
 
     steps:
       - name: R available?
         run: | 
           R --version
           Rscript --version
+      - name: Create Renviron
+        run: echo "R_LIBS_USER=tempdir/library" > .Renviron
       - name: Install R packages
         run: Rscript -e 'install.packages("jsonlite", repos = "https://cloud.r-project.org/", verbose = TRUE, type = "source")'
