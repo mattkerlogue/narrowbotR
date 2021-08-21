@@ -4,7 +4,7 @@ on: workflow_dispatch
 
 jobs:
   narrowbotR-manual-post:
-    runs-on: macos-latest
+    runs-on: ubuntu-latest
     env:
       FLICKR_API_KEY: ${{ secrets.FLICKR_API_KEY }}
       TWITTER_CONSUMER_API_KEY: ${{ secrets.TWITTER_CONSUMER_API_KEY }}
@@ -15,6 +15,10 @@ jobs:
     
     steps:
       - uses: actions/checkout@v2
+      - name: Set temp library
+        run: |
+          mkdir tmplib
+          echo "R_LIBS_USER=tmplib" > .Renviron
       - name: Install packages
         run: Rscript -e 'source("R/pkg_install.R")' -e 'install_runner_packages()'
       - name: Cruise the canals
