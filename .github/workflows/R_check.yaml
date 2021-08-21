@@ -20,4 +20,4 @@ jobs:
           echo "R_LIBS_USER=tempdir/library" > .Renviron
           Rscript -e 'message(Sys.getenv("R_LIBS_USER"))'
       - name: Install R packages
-        run: Rscript -e 'install.packages("jsonlite", repos = "https://cloud.r-project.org/", verbose = TRUE, type = "source")'
+        run: Rscript -e 'install.packages("jsonlite", lib=Sys.getenv("R_LIBS_USER"), repos = "https://cloud.r-project.org/", verbose = TRUE, type = "source")'
