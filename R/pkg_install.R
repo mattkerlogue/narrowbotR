@@ -2,9 +2,7 @@
 # packages for regular running
 install_runner_packages <- function() {
   
-  install.packages("jsonlite", repos = "https://cloud.r-project.org/", type = "source")
-  
-  pkgs <- c("dplyr", "purrr", "readr", "tidyr", "rtweet",
+  pkgs <- c("dplyr", "purrr", "readr", "tidyr", "rtweet", "jsonlite",
             "janitor", "lubridate", "stringr", "data.table", "suncalc")
   
   install.packages(pkgs, repos = "https://cloud.r-project.org/")
