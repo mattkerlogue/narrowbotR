@@ -97,7 +97,8 @@ rtweet::post_tweet(
   media = tmp_file, 
   media_alt_text = alt_msg,
   lat = place$lat,
-  long = place$long
+  long = place$long,
+  token = narrowbotr_token
 )
 
 cli::cli_progress_done()
