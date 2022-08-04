@@ -21,6 +21,6 @@ jobs:
         with: 
           use-public-rspm: true
       - name: Install packages
-        run: Rscript -e 'source("R/pkg_install.R")' -e 'install_runner_packages()'
+        run: Rscript -e 'source("R/pkg_install.R")' -e 'install_packages()'
       - name: Cruise the canals
         run: Rscript narrowbot.R
