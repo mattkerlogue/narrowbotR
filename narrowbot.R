@@ -1,20 +1,27 @@
-# load functions
+# narrowbotR
+# An R-based Twitter bot that tweets waterway features in England & Wales from
+# the Canal & River Trust network.
 
-cli::cli_progress_step("Load flickr functions")
+# set-up environment ------------------------------------------------------
 
+# load {dplyr} and flickr functions
+cli::cli_progress_step("Load {dplyr} flickr functions")
 library(dplyr)
 source("R/flickr_functions.R")
 
 
+# create twitter token
 cli::cli_progress_step("Get rtweet token")
 
-# create twitter token
 narrowbotr_token <- rtweet::rtweet_bot(
   api_key =    Sys.getenv("TWITTER_CONSUMER_API_KEY"),
   api_secret = Sys.getenv("TWITTER_CONSUMER_API_SECRET"),
   access_token =    Sys.getenv("TWITTER_ACCESS_TOKEN"),
   access_secret =   Sys.getenv("TWITTER_ACCESS_TOKEN_SECRET")
 )
+
+
+# select location ---------------------------------------------------------
 
 cli::cli_progress_step("Select location")
 
@@ -28,14 +35,20 @@ place <- all_points %>%
   dplyr::sample_n(1) %>%
   as.list()
 
+# tell user you have picked a place
 cli::cli_alert(
   "Picked {place$name}, lat: {.val {round(place$lat,4)}}, long: {.val {round(place$long,4)}}"
 )
 
+
+# get photo ---------------------------------------------------------------
+
 cli::cli_progress_step("Get photo")
 
+# get a set of photos from flickr based on selected location
 place_photos <- flickr_get_photo_list(lat = place$lat, long = place$long)
 
+# pick photo from flickr if a set available
 if (is.null(place_photos)) {
   photo_select <- NULL
   cli::cli_alert_warning("No flickr photo available")
@@ -43,8 +56,10 @@ if (is.null(place_photos)) {
   photo_select <- flickr_pick_photo(place_photos)
 }
 
+# get a download location
 tmp_file <- tempfile(fileext = ".jpg")
 
+# if no photo from flickr build a url for mapbox
 if (is.null(photo_select)) {
   mapbox_url <- paste0(
     "https://api.mapbox.com/styles/v1/mapbox/satellite-v9/static/",
@@ -57,20 +72,27 @@ if (is.null(photo_select)) {
   img_url <- photo_select$img_url
 }
 
+# try to download the photo
 photo_success <- download.file(img_url, tmp_file)
 
+# if flickr download fails, try mapbox
 if (!is.null(photo_select) & photo_sucess != 0) {
   cli::cli_alert_warning("Flickr download failed, attempting Mapbox")
   photo_success <- download.file(mapbox_url, tmp_file)
   photo_select <- NULL
 }
 
+# if all photos fail, terminate
 if (photo_success == 0) {
   cli::cli_abort("Unable to download photo. Ending bot instance.")
 }
 
+
+# construct tweet ---------------------------------------------------------
+
 cli::cli_progress_step("Construct tweet")
 
+# core message info used by all tweets, name, type and OSM link
 base_message <- c(
   "📍: ", place$name, "\n",
   "ℹ️: ", place$obj_type_label, "\n",
@@ -80,6 +102,7 @@ base_message <- c(
                   "#map=17/", place$lat, "/", place$long)
 )
 
+# create alt text for tweet photo, add flickr info to tweet
 if (is.null(photo_select)) {
   tweet_text <- base_message
   alt_msg <- paste0("A satellite image of the area containing ", 
@@ -99,7 +122,11 @@ if (is.null(photo_select)) {
     )
 }
 
+# create finalised tweet message
 status_msg <- paste0(tweet_text, collapse = "")
+
+
+# post tweet --------------------------------------------------------------
 
 cli::cli_progress_step("Post tweet")
 
@@ -114,6 +141,7 @@ rtweet::post_tweet(
 
 cli::cli_progress_done()
 
+# show tweet in GH actions log
 cli::cli({
   cli::cli_h1("narrowbot completed")
   cli::cli_verbatim(status_msg)
