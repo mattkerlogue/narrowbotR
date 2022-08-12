@@ -5,7 +5,7 @@
 # set-up environment ------------------------------------------------------
 
 # load {dplyr} and flickr functions
-cli::cli_progress_step("Load {dplyr} flickr functions")
+cli::cli_progress_step("Load dplyr and flickr functions")
 library(dplyr)
 source("R/flickr_functions.R")
 
