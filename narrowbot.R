@@ -130,14 +130,19 @@ status_msg <- paste0(tweet_text, collapse = "")
 
 cli::cli_progress_step("Post tweet")
 
-rtweet::post_tweet(
-  status = status_msg,
-  media = tmp_file, 
-  media_alt_text = alt_msg,
-  lat = place$lat,
-  long = place$long,
-  token = narrowbotr_token
-)
+# if testing do not post output
+if (Sys.getenv("NARROWBOT_TEST") == "true") {
+  cli::cli_alert_warning("narrowbotr workflow test complete")
+} else {
+  rtweet::post_tweet(
+    status = status_msg,
+    media = tmp_file, 
+    media_alt_text = alt_msg,
+    lat = place$lat,
+    long = place$long,
+    token = narrowbotr_token
+  )
+}
 
 cli::cli_progress_done()
 
