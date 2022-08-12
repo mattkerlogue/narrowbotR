@@ -76,7 +76,7 @@ if (is.null(photo_select)) {
 photo_success <- download.file(img_url, tmp_file)
 
 # if flickr download fails, try mapbox
-if (!is.null(photo_select) & photo_sucess != 0) {
+if (!is.null(photo_select) & photo_success != 0) {
   cli::cli_alert_warning("Flickr download failed, attempting Mapbox")
   photo_success <- download.file(mapbox_url, tmp_file)
   photo_select <- NULL
