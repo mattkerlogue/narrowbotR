@@ -46,17 +46,28 @@ if (is.null(place_photos)) {
 tmp_file <- tempfile(fileext = ".jpg")
 
 if (is.null(photo_select)) {
-  img_url <- paste0(
+  mapbox_url <- paste0(
     "https://api.mapbox.com/styles/v1/mapbox/satellite-v9/static/",
     paste0(place$long, ",", place$lat, ",", 16),
     "/600x400?access_token=",
     Sys.getenv("MAPBOX_PAT")
   )
+  img_url <- mapbox_url
 } else {
   img_url <- photo_select$img_url
 }
 
-download.file(img_url, tmp_file)
+photo_success <- download.file(img_url, tmp_file)
+
+if (!is.null(photo_select) & photo_sucess != 0) {
+  cli::cli_alert_warning("Flickr download failed, attempting Mapbox")
+  photo_success <- download.file(mapbox_url, tmp_file)
+  photo_select <- NULL
+}
+
+if (photo_success == 0) {
+  cli::cli_abort("Unable to download photo. Ending bot instance.")
+}
 
 cli::cli_progress_step("Construct tweet")
 
