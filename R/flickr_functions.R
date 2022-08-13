@@ -156,7 +156,13 @@ get_flickr_photo <- function(lat, long, key = NULL) {
       sun_value = eval_time(datetaken, lat, long),
       time_offset = as.numeric(Sys.time() - as.POSIXct(datetaken))
     ) %>%
-    dplyr::filter(time_offset <= 5000) %>%
+    dplyr::filter(time_offset <= 5000)
+  
+  if (nrow(scored_photos) == 0) {
+    return(NULL)
+  }
+  
+  scored_photos <- scored_photos %>%
     dplyr::mutate(
       distance_score = rev(sqrt(distance)),
       offset_score = rev(rescale(time_offset, c(5,1))),
