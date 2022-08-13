@@ -1,6 +1,9 @@
+# functions to interact with the flickr API
 
+# get photos based on a given lat/long
 photos_for_location <- function(lat, long, key = NULL) {
   
+  # get flickr key if not provided
   if (is.null(key)) {
     key <- Sys.getenv("FLICKR_API_KEY")
     if (key == "") {
@@ -8,6 +11,7 @@ photos_for_location <- function(lat, long, key = NULL) {
     }
   }
   
+  # check for lat/long
   if (missing(lat)) {
     stop("lat missing")
   }
@@ -16,6 +20,7 @@ photos_for_location <- function(lat, long, key = NULL) {
     stop("long missing")
   }
   
+  # construct flickr api call
   url <- paste0(
     "https://www.flickr.com/services/rest/?method=flickr.photos.search",
     "&api_key=", key,
@@ -34,8 +39,10 @@ photos_for_location <- function(lat, long, key = NULL) {
     "&nojsoncallback=1"
   )
   
+  # get flickr api response
   response <- jsonlite::fromJSON(url)
   
+  # get photos dataset
   if (response$photos$total == 0) {
     message("No photos at location")
     photos <- NULL
@@ -50,6 +57,7 @@ photos_for_location <- function(lat, long, key = NULL) {
   
 }
 
+# clean a character string for processing
 clean_string <- function(string) {
   
   # remove HTML
@@ -65,6 +73,7 @@ clean_string <- function(string) {
   
 }
 
+# count the number of words in a string
 n_words <- function(string) {
   
   if (string == "") {
@@ -77,6 +86,7 @@ n_words <- function(string) {
   return(words)
 }
 
+# count the number of canal words in a string
 canal_words_count <- function(string) {
   
   canal_words <- c("canal", "lock", "water", "boat", "gate", "bird", "duck", 
@@ -96,7 +106,7 @@ canal_words_count <- function(string) {
   
 }
 
-
+# determine and score the time of day
 eval_time <- function(date_taken, lat, long) {
   
   timestamp <- as.POSIXct(date_taken)
@@ -135,14 +145,17 @@ rescale <- function (x, to = c(0, 1)) {
   
 }
 
+# get a photo from flickr
 get_flickr_photo <- function(lat, long, key = NULL) {
   
+  # get photos for the location
   photos <- photos_for_location(lat, long, key)
   
   if (is.null(photos)) {
     return(NULL)
   }
   
+  # generate photo metrics
   scored_photos <- photos %>%
     dplyr::select(id, title, description, datetaken, tags, distance) %>%
     dplyr::mutate(
@@ -158,10 +171,12 @@ get_flickr_photo <- function(lat, long, key = NULL) {
     ) %>%
     dplyr::filter(time_offset <= 5000)
   
+  # return NULL if all photos filtered out
   if (nrow(scored_photos) == 0) {
     return(NULL)
   }
   
+  # finish scoring the photos
   scored_photos <- scored_photos %>%
     dplyr::mutate(
       distance_score = rev(sqrt(distance)),
@@ -171,11 +186,13 @@ get_flickr_photo <- function(lat, long, key = NULL) {
     ) %>%
     dplyr::arrange(-photo_score)
   
+  # get id of selected photo
   selected_photo_id <- scored_photos %>%
     dplyr::filter(photo_score == max(photo_score)) %>%
     dplyr::slice_head(n = 1) %>%
     pull(id)
   
+  # get details of selected photo
   selected_photo <- photos %>%
     dplyr::filter(id == selected_photo_id) %>%
     dplyr::mutate(
