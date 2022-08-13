@@ -6,7 +6,6 @@
 
 # load {dplyr} and flickr functions
 suppressPackageStartupMessages(library(dplyr))
-suppressPackageStartupMessages(library(sf))
 source("R/flickr_functions.R")
 
 
