@@ -1,50 +1,5 @@
-# Get information about a specific photo
-flickr_get_photo_info <- function(key = NULL, photo_id, photo_secret) {
-  
-  if (is.null(key)) {
-    key <- Sys.getenv("FLICKR_API_KEY")
-    if (key == "") {
-      stop("Flickr API key not set")
-    }
-  }
-  
-  if (missing(photo_id)) {
-    stop("photo_id missing")
-  }
-  
-  if (missing(photo_secret)) {
-    stop("photo_secret missing")
-  }
-  
-  # create flickr api url
-  url <- paste0(
-    "https://www.flickr.com/services/rest/?method=flickr.photos.getInfo",
-    "&api_key=", key,
-    "&photo_id=", photo_id,
-    "&secret=", photo_secret,
-    "&format=json",
-    "&nojsoncallback=1")
-  
-  # get data
-  r <- jsonlite::fromJSON(url)
-  
-  # extract relevant info
-  info <- tibble::tibble(
-    username = r$photo$owner$username,
-    realname = r$photo$owner$realname,
-    licence = r$photo$license,
-    description = r$photo$description$`_content`,
-    date = lubridate::as_datetime(r$photo$dates$taken),
-    can_download = r$photo$usage$candownload,
-    can_share = r$photo$usage$canshare
-  )
-  
-  return(info)
-  
-}
 
-# Get the 100 closest photos to the desired position and pull info
-flickr_get_photo_list <- function(key = NULL, lat, long) {
+photos_for_location <- function(lat, long, key = NULL) {
   
   if (is.null(key)) {
     key <- Sys.getenv("FLICKR_API_KEY")
@@ -61,9 +16,6 @@ flickr_get_photo_list <- function(key = NULL, lat, long) {
     stop("long missing")
   }
   
-  # construct flickr api url
-  # using lat/long will sort in geographical proximity
-  # choose within 100m of the position (radius=0.1)
   url <- paste0(
     "https://www.flickr.com/services/rest/?method=flickr.photos.search",
     "&api_key=", key,
@@ -77,78 +29,97 @@ flickr_get_photo_list <- function(key = NULL, lat, long) {
     "&radius=0.1",
     "&per_page=100",
     "&page=1",
+    "&extras=description%2Clicense%2Cdate_taken%2Cowner_name%2Ctags",
     "&format=json",
     "&nojsoncallback=1"
   )
   
-  # get data
-  r <- jsonlite::fromJSON(url)
+  response <- jsonlite::fromJSON(url)
   
-  # extract the photo data
-  p <- r$photos$photo
-  
-  # skip if less than 10 photos returned
-  # suggests uninteresting/remote place
-  if (length(p) == 0) {
-    p <- NULL
-  } else if (nrow(p) < 10) {
-    p <- NULL
+  if (response$photos$total == 0) {
+    message("No photos at location")
+    photos <- NULL
   } else {
-    
-    # get info for photos, add sunlight hours
-    # drop photos before sunrise or after sunset
-    p <- p %>% 
-      dplyr::mutate(
-        info = purrr::map2(id, secret, 
-                           ~flickr_get_photo_info(key = key, 
-                                                  photo_id = .x, 
-                                                  photo_secret = .y))
-      ) %>%
-      tidyr::unnest(info) %>%
-      dplyr::mutate(
-        suntimes = purrr::map(
-          as.Date(date), 
-          ~suncalc::getSunlightTimes(date = .x, lat = lat, lon = long, 
-                                     keep = c("sunrise", "goldenHourEnd", 
-                                              "goldenHour", "sunset"))),
-        suntimes = purrr::map(suntimes, ~dplyr::select(.x, -date, -lat, -lon))
-      ) %>% 
-      tidyr::unnest(suntimes) %>%
-      dplyr::mutate(after_sunset = date > sunset, 
-                    before_sunrise = date < sunrise, 
-                    goldenhour = dplyr::if_else(
-                      (date >= sunrise & date <= goldenHourEnd) | 
-                        (date <= sunset & date >= goldenHour), TRUE, FALSE)) %>% 
-      dplyr::filter(!after_sunset) %>%
-      dplyr::filter(!before_sunrise)
-   
-    # if after removing night-time photos there are only a very small number
-    # then exclude again as might be an uninteresting place
-    if (nrow(p) < 3) {
-      p <- NULL
-    }
-     
+    photos <- response$photos$photo %>%
+      tidyr::unnest(description) %>%
+      dplyr::rename(description = `_content`) %>%
+      dplyr::mutate(distance = dplyr::row_number())
   }
   
-  return(p)
+  return(photos)
   
 }
 
-# count canal words
-canal_word_count <- function(string) {
+clean_string <- function(string) {
+  
+  # remove HTML
+  string <- gsub("<.+?>", "", tolower(string))
+  # remove newlines
+  string <- gsub("\\n", " ", string)
+  # remove punctuation
+  string <- gsub("[[:punct:]]", "", string)
+  # remove double spaces
+  string <- gsub("  ", " ", string)
+  
+  return(string)
+  
+}
+
+n_words <- function(string) {
+  
+  if (string == "") {
+    words <- 0
+  } else {
+    string <- clean_string(string)
+    words <- stringr::str_count(string, "\\b")/2
+  }
+  
+  return(words)
+}
+
+canal_words_count <- function(string) {
   
   canal_words <- c("canal", "lock", "water", "boat", "gate", "bird", "duck", 
                    "swan", "river", "aqueduct", "towpath", "barge", "keeper",
-                   "tunnel", "narrow")
+                   "tunnel", "narrow", "quay", "quayside")
   
-  counter <- 0
+  string <- clean_string(string)
   
-  for (word in canal_words) {
-    x <- stringr::str_detect(tolower(string), word)
-    counter <- counter + x
-  }
+  canal_count <- sum(
+    purrr::map_dbl(
+      canal_words,
+      ~stringr::str_count(string, .x)
+    )
+  )
   
-  return(counter)
+  return(canal_count)
+  
+}
+
+
+eval_time <- function(date_taken, lat, long) {
+  
+  timestamp <- as.POSIXct(date_taken)
+  
+  sun_times <- suncalc::getSunlightTimes(
+    as.Date(timestamp), 
+    lat = lat, lon = long, 
+    keep = c("sunrise", "goldenHourEnd", "goldenHour", "sunset")
+  )
+  
+  sun_score <- dplyr::as_tibble(sun_times) %>%
+    dplyr::mutate(
+      ts = timestamp,
+      sun_value = dplyr::case_when(
+        ts < sunrise ~ 0,        # ignore photos before sunrise
+        ts < goldenHourEnd ~ 2,  # photos in morning golden hour
+        ts < goldenHour ~ 1,     # photos in regular daytime
+        ts < sunset ~ 2,         # photos in evening golden hour
+        TRUE ~ 0                 # ignore photos after sunset
+      )
+    )
+  
+  return(sun_score$sun_value)
   
 }
 
@@ -164,81 +135,55 @@ rescale <- function (x, to = c(0, 1)) {
   
 }
 
-# score photos
-# The scoring algorithm takes into account:
-#   * the approx length of titles and 
-#   descriptions (descriptions are logged to benefit titles and not to 
-#   over-reward verbose descriptions),
-#   * the number of canal related words used this seeks the range of canal 
-#   words used rather than the pure count, this is then squared to make it
-#   give it a high weighting,
-#   * whether the time is during 'golden hour' for the location (if so, then 
-#   the algorithm in effect doubles the score for that photo),
-#   * distance from the location (the flickr api return is supposed to provide 
-#   a list that is sorted by distance, however am unsure about this) so this is 
-#   square rooted to reduce variance
-#   * time offset from today, more recent photos are preferred but this 
-#   censored (so that photos older than 5000 days are excluded) and is scaled 
-#   to between 1 and 5 to reduce impact
-#      
-#   The final score is a product of these different components:
-#       SCORE = WORD_SCORE * DIST_SCORE * GOLDEN_HOUR * TIME_OFFSET * CANAL_WORD_SCORE
-#   
-flickr_photo_score <- function(df) {
+get_flickr_photo <- function(lat, long, key = NULL) {
   
-  n_df <- df %>%
-    dplyr::select(id, owner, title, description, date, goldenhour) %>%
+  photos <- photos_for_location(lat, long, key)
+  
+  if (is.null(photos)) {
+    return(NULL)
+  }
+  
+  scored_photos <- photos %>%
+    dplyr::select(id, title, description, datetaken, tags, distance) %>%
     dplyr::mutate(
-      title_words = purrr::map_dbl(title, ~max(stringr::str_count(., " "),1)),
-      desc_words = stringr::str_count(description, " "),
-      total_words = title_words + desc_words,
-      desc_words2 = log10(purrr::map_dbl(description, ~max(stringr::str_count(., " "),1))),
-      word_score = purrr::pmap_dbl(list(title_words, desc_words2), sum, na.rm = TRUE),
-      canal_words = canal_word_count(title) + canal_word_count(description),
-      canal_word_score = purrr::map_dbl(canal_words^2, ~max(., 1)),
-      gold = dplyr::if_else(goldenhour, 2, 1),
-      offset = Sys.time() - date
-      ) %>%
-    dplyr::filter(offset <= 5000) %>%
-    dplyr::mutate(
-      distance = dplyr::row_number(),
-      dist_rev = rev(sqrt(distance))
+      title_words = purrr::map_dbl(title, n_words),
+      description_words = purrr::map_dbl(description, n_words),
+      word_score = title_words + log(max(description_words, 1)),
+      canal_title = purrr::map_dbl(title, canal_words_count),
+      canal_description = purrr::map_dbl(description, canal_words_count),
+      canal_tags = purrr::map_dbl(tags, canal_words_count),
+      canal_score = canal_title + canal_description + canal_tags,
+      sun_value = eval_time(datetaken, lat, long),
+      time_offset = as.numeric(Sys.time() - as.POSIXct(datetaken))
     ) %>%
-    dplyr::arrange(offset) %>%
+    dplyr::filter(time_offset <= 5000) %>%
     dplyr::mutate(
-      offset_rev = rev(sqrt(as.numeric(offset))),
-      alt_off = rescale(as.numeric(offset), c(5,1)),
-      final_score = word_score * dist_rev * gold * alt_off * canal_word_score
-      ) %>%
-    dplyr::select(id, owner, final_score) %>%
-    dplyr::arrange(-final_score)
+      distance_score = rev(sqrt(distance)),
+      offset_score = rev(rescale(time_offset, c(5,1))),
+      photo_score = word_score * canal_score * sun_value * 
+        distance_score * offset_score
+    ) %>%
+    dplyr::arrange(-photo_score)
   
-  return(n_df)
+  selected_photo_id <- scored_photos %>%
+    dplyr::filter(photo_score == max(photo_score)) %>%
+    dplyr::slice_head(n = 1) %>%
+    pull(id)
   
-}
-
-# pick and prep photo for tweet
-flickr_pick_photo <- function(df) {
+  selected_photo <- photos %>%
+    dplyr::filter(id == selected_photo_id) %>%
+    dplyr::mutate(
+      photo_url = paste("https://www.flickr.com/photos", 
+                        owner, 
+                        id,
+                        sep = "/"),
+      img_url = paste0("https://live.staticflickr.com/",
+                       server, "/",
+                       id,"_",secret,".jpg")
+    ) %>%
+    dplyr::select(id, owner, ownername, title, photo_url, img_url) %>%
+    as.list()
   
-  scored_df <- flickr_photo_score(df)
-  
-  n_df <- df %>% 
-    dplyr::inner_join(scored_df, by = c("id", "owner")) %>%
-    tidyr::drop_na(final_score) %>%
-    dplyr::filter(final_score == max(final_score))
-  
-  photo <- as.list(n_df)
-  
-  photo$photo_url <- paste("https://www.flickr.com/photos", 
-                           photo$owner, 
-                           photo$id,
-                           sep = "/")
-  
-  photo$img_url <- paste0("https://live.staticflickr.com/",
-                         photo$server, "/",
-                         photo$id,"_",photo$secret,".jpg")
-  
-  return(photo)
+  return(selected_photo)
   
 }
-
