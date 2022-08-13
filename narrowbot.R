@@ -5,7 +5,7 @@
 # set-up environment ------------------------------------------------------
 
 # load {dplyr} and flickr functions
-library(dplyr)
+suppressPackageStartupMessages(library(dplyr))
 source("R/flickr_functions.R")
 
 
@@ -108,7 +108,6 @@ if (Sys.getenv("NARROWBOT_TEST") == "true") {
     display_coordinates = TRUE,
     token = narrowbotr_token
   )
-  message("Tweet posted")
 }
 
 # delay to avoid message and cat mixing
