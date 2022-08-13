@@ -6,7 +6,7 @@ on:
       - main
 
 jobs:
-  narrowbotR-manual-post:
+  check-narrowbotR:
     runs-on: ubuntu-latest
     env:
       FLICKR_API_KEY: ${{ secrets.FLICKR_API_KEY }}
