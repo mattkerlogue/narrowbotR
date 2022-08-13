@@ -3,7 +3,7 @@
 install_packages <- function() {
   
   pkgs <- c("dplyr", "purrr", "readr", "tidyr", "rtweet", "jsonlite", "sf",
-            "janitor", "lubridate", "stringr", "data.table", "suncalc", "cli")
+            "janitor", "lubridate", "stringr", "data.table", "suncalc")
   
   install.packages(pkgs)
   invisible(NULL)
