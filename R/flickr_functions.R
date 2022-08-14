@@ -137,6 +137,10 @@ eval_time <- function(date_taken, lat, long) {
 # to avoid having to install and load the scales package
 rescale <- function (x, to = c(0, 1)) {
   
+  if (length(unique(x)) == 1) {
+    return(1)
+  }
+  
   from <- range(x)
   
   rx <- (x - from[1])/diff(from) * diff(to) + to[1]
@@ -188,8 +192,7 @@ get_flickr_photo <- function(lat, long, key = NULL) {
   
   # get id of selected photo
   selected_photo_id <- scored_photos %>%
-    dplyr::filter(photo_score == max(photo_score)) %>%
-    dplyr::slice_head(n = 1) %>%
+    dplyr::slice_max(photo_score, n = 1) %>%
     pull(id)
   
   # get details of selected photo
