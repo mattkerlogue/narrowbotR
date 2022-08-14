@@ -89,16 +89,29 @@ n_words <- function(string) {
 # count the number of canal words in a string
 canal_words_count <- function(string) {
   
-  canal_words <- c("canal", "lock", "water", "boat", "gate", "bird", "duck", 
-                   "swan", "river", "aqueduct", "towpath", "barge", "keeper",
-                   "tunnel", "narrow", "quay", "quayside")
+  # words to detect
+  canal_words <- c(
+    # canal terminology
+    "aqueduct", "bank", "barge", "beam", "boat", "canal", "channel", "cut",
+    "cruise", "cruising", "dingle", "flight", "embankment", "gate",
+    "gongoozl", "junction", "keeper", "lock", "marina", "mooring", "narrow",
+    "navv", "paddle", "piling", "pound", "quay", "quayside", "river", "sluice",
+    "towpath", "tunnel", "water", "weir", "winding", "windlass",
+    # wildlife
+    "badger", "bat", "bee", "bird", "butterfly", "coot", "comorant",
+    "damselfly", "dormouse", "dragonfly", "duck", "frog", "goose",
+    "grasshopper", "grass snake", "heron", "kestrel", "kingfisher",
+    "mallard", "newt", "otter", "owl", "polecat", "stoat", "swan", "vole"
+  )
   
+  # simplify string
   string <- clean_string(string)
   
+  # count how many canal words are in the string
   canal_count <- sum(
     purrr::map_dbl(
       canal_words,
-      ~stringr::str_count(string, .x)
+      ~stringr::str_detect(string, .x)
     )
   )
   
