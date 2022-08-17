@@ -201,11 +201,18 @@ get_flickr_photo <- function(lat, long, key = NULL) {
       photo_score = word_score * canal_score * sun_value * 
         distance_score * offset_score
     ) %>%
-    dplyr::arrange(-photo_score)
+    dplyr::arrange(-photo_score) %>%
+    dplyr::filter(photo_score > 0)
+  
+  # return NULL if all photos filtered out
+  if (nrow(scored_photos) == 0) {
+    return(NULL)
+  }
   
   # get id of selected photo
   selected_photo_id <- scored_photos %>%
     dplyr::slice_max(photo_score, n = 1) %>%
+    dplyr::sample_n(size = 1) %>%
     pull(id)
   
   # get details of selected photo
