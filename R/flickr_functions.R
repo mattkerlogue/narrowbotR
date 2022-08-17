@@ -101,7 +101,11 @@ canal_words_count <- function(string) {
     "badger", "bat", "bee", "bird", "butterfly", "coot", "comorant",
     "damselfly", "dormouse", "dragonfly", "duck", "frog", "goose",
     "grasshopper", "grass snake", "heron", "kestrel", "kingfisher",
-    "mallard", "newt", "otter", "owl", "polecat", "stoat", "swan", "vole"
+    "mallard", "newt", "otter", "owl", "polecat", "stoat", "swan", "vole",
+    "fox",
+    # landscape/heritage
+    "mill", "industr", "heritage", "historic", "transport", "landscape", 
+    "field", "textile", "coal", "cargo", "warehouse", "reservoir", "pump"
   )
   
   # simplify string
