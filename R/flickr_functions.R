@@ -182,7 +182,7 @@ get_flickr_photo <- function(lat, long, key = NULL) {
       canal_title = purrr::map_dbl(title, canal_words_count),
       canal_description = purrr::map_dbl(description, canal_words_count),
       canal_tags = purrr::map_dbl(tags, canal_words_count),
-      canal_score = canal_title + canal_description + canal_tags,
+      canal_score = max(1, (canal_title + canal_description + canal_tags)),
       sun_value = eval_time(datetaken, lat, long),
       time_offset = as.numeric(Sys.time() - as.POSIXct(datetaken))
     ) %>%
