@@ -119,4 +119,4 @@ if (Sys.getenv("NARROWBOT_TEST") == "true") {
 Sys.sleep(1)
 
 # output tweet message for GH actions log
-cat(status_msg)
+cat(status_msg, paste("Alt text:", alt_msg), sep = "\n")
