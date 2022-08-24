@@ -291,8 +291,8 @@ download_photo <- function(flickr_url = NULL, mapbox_url = NULL, dest = NULL) {
     } else {
       stop("Failed to download a photo from Flickr or Mapbox")
     }
-  } else {
-    stop("Mapbox URL is NULL")
+  } else if (is.null(res) & is.null(mapbox_url)) {
+    stop("Flickr download failed, Mapbox URL is NULL")
   }
   
   return(download)
