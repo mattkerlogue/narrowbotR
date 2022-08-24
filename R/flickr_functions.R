@@ -237,3 +237,65 @@ get_flickr_photo <- function(lat, long, key = NULL) {
   return(selected_photo)
   
 }
+
+# download with error handling
+safe_download <- function(url, dest) {
+  tryCatch(
+    error = function(cnd) {
+      if (grepl("HTTP error", cnd)) {
+        message("URL failed: ", url)
+        message("Error code: ", gsub("\\D", "", cnd))
+      }
+      NULL
+    },
+    {
+      curl::curl_download(url, dest)
+      url
+    }
+  )
+}
+
+# download photo from Flickr or Mapbox
+download_photo <- function(flickr_url = NULL, mapbox_url = NULL, dest = NULL) {
+  
+  # check for URLs
+  if (is.null(flickr_url) & is.null(mapbox_url)) {
+    stop("No photo service URLs provided")
+  }
+  
+  # check for destination
+  if (is.null(dest)) {
+    stop("No destination file set")
+  }
+  
+  res <- NULL
+  download <- 0
+  
+  # if given try to download the flickr photo
+  if (!is.null(flickr_url)) {
+    res <- safe_download(flickr_url, dest)
+    download <- 1
+    message("Flickr photo downloaded")
+  }
+  
+  # try to download a photo from mapbox
+  if (is.null(res) & !is.null(mapbox_url)) {
+    res <- safe_download(mapbox_url, dest)
+    if (!is.null(res)) {
+      download <- 2
+      if (!is.null(flickr_url)) {
+        message("Flickr download failed, Mapbox photo downloaded")
+      } else {
+        message("Mapbox photo downloaded")
+      }
+    } else {
+      stop("Failed to download a photo from Flickr or Mapbox")
+    }
+  } else {
+    stop("Mapbox URL is NULL")
+  }
+  
+  return(download)
+  
+}
+

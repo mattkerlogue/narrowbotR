@@ -40,23 +40,26 @@ message("Picked ", place$name,
 # get a photo from Flickr based on selected location
 flickr_photo <- get_flickr_photo(place$lat, place$long)
 
-# if no photo from flickr build a url for mapbox
+# set the flickr photo url
 if (is.null(flickr_photo)) {
-  img_url <- paste0(
-    "https://api.mapbox.com/styles/v1/mapbox/satellite-v9/static/",
-    paste0(place$long, ",", place$lat, ",", 16),
-    "/600x400?access_token=",
-    Sys.getenv("MAPBOX_PAT")
-  )
+  flickr_url <- NULL
 } else {
-  img_url <- flickr_photo$img_url
+  flickr_url <- flickr_photo$img_url
 }
+
+# set the mapbox photo url
+mapbox_url <- paste0(
+  "https://api.mapbox.com/styles/v1/mapbox/satellite-v9/static/",
+  paste0(place$long, ",", place$lat, ",", 16),
+  "/600x400?access_token=",
+  Sys.getenv("MAPBOX_PAT")
+)
 
 # get a download location
 tmp_file <- tempfile(fileext = ".jpg")
 
 # try to download the photo
-download.file(img_url, tmp_file)
+download_res <- download_photo(flickr_url, mapbox_url, tmp_file)
 
 # construct tweet ---------------------------------------------------------
 
@@ -71,12 +74,12 @@ base_message <- c(
 )
 
 # create alt text for tweet photo, add flickr info to tweet
-if (is.null(flickr_photo)) {
+if (download_res == 2) {
   tweet_text <- base_message
   alt_msg <- paste0("A satellite image of the area containing ", 
                     place$name,
                     ". Provided by MapBox.")
-} else {
+} else if (download_res == 1) {
   tweet_text <- c(
     base_message, "\n",
     "📸: Photo by ", stringr::str_squish(flickr_photo$ownername), " on Flickr ",
@@ -88,6 +91,8 @@ if (is.null(flickr_photo)) {
     stringr::str_squish(flickr_photo$ownername),
     " on Flickr."
     )
+} else {
+  stop("Something has gone wrong")
 }
 
 # create finalised tweet message
