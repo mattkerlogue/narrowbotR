@@ -242,14 +242,10 @@ get_flickr_photo <- function(lat, long, key = NULL) {
 safe_download <- function(url, dest) {
   tryCatch(
     error = function(cnd) {
-      if (grepl("HTTP error", cnd)) {
-        message("URL failed: ", url)
-        message("Error code: ", gsub("\\D", "", cnd))
-      }
       NULL
     },
     {
-      curl::curl_download(url, dest)
+      download.file(url, dest, quiet = TRUE)
       url
     }
   )
