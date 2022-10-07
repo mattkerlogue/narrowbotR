@@ -26,8 +26,9 @@ jobs:
           Rscript -e 'message(Sys.getenv("R_LIBS_USER"))'
       - name: Install R packages
         run: Rscript -e 'install.packages("jsonlite")'
-      - name: Check curl
+      - name: Install cURL Headers
         run: |
-          which curl
-          curl --version
-          
+        sudo apt-get update
+        sudo apt-get install libcurl4-openssl-dev
+      - name: Install curl package
+        run: Rscript -e 'install.packages("curl")'
