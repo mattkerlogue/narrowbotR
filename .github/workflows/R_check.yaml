@@ -26,3 +26,8 @@ jobs:
           Rscript -e 'message(Sys.getenv("R_LIBS_USER"))'
       - name: Install R packages
         run: Rscript -e 'install.packages("jsonlite")'
+      - name: Check curl
+        run: |
+          which curl
+          curl --version
+          
