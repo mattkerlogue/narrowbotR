@@ -28,7 +28,7 @@ jobs:
         run: Rscript -e 'install.packages("jsonlite")'
       - name: Install cURL Headers
         run: |
-        sudo apt-get update
-        sudo apt-get install libcurl4-openssl-dev
+          sudo apt-get update
+          sudo apt-get install libcurl4-openssl-dev
       - name: Install curl package
         run: Rscript -e 'install.packages("curl")'
