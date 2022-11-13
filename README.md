@@ -4,6 +4,8 @@
 
 [narrowbotR](https://twitter.com/narrowbotR) (pronounced "narrow-boater") is a Twitter bot written in R that publishes information about the UK canal network. This bot is inspired by [Matt Dray](https://github.com/matt-dray/)'s [londonmapbot](https://github.com/matt-dray/londonmapbot) which randomly tweets a location in the rough vicinity of London every 30 minutes. This bot seeks to do something similar: tweeting a random location on the UK canal network at a regular interval. It is a work in progress. At present it only publishes information about the English and Welsh canal network.
 
+A <a rel="me" href="https://botsin.space/@narrowbotr">Mastodon</a> implementation of the bot is also in development.
+
 The bot works as follows:
 
 * The data from [Canal and River Trust's open data](http://data-canalrivertrust.opendata.arcgis.com) feeds has been downloaded and aggregated into a single file, only the point-based data at this stage, let's call each item in this data a "feature"
