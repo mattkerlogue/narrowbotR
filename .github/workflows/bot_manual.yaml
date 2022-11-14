@@ -12,7 +12,8 @@ jobs:
       TWITTER_ACCESS_TOKEN: ${{ secrets.TWITTER_ACCESS_TOKEN }}
       TWITTER_ACCESS_TOKEN_SECRET: ${{ secrets.TWITTER_ACCESS_TOKEN_SECRET }}
       MAPBOX_PAT: ${{ secrets.MAPBOX_PAT }}
-    
+      MASTODON_TOKEN: ${{ secrets.MASTODON_TOKEN }}
+      NARROWBOT_MANUAL: "true"
     steps:
       - uses: actions/checkout@v2
       - uses: r-lib/actions/setup-r@v2
