@@ -7,16 +7,21 @@
 # load {dplyr} and flickr functions
 suppressPackageStartupMessages(library(dplyr))
 source("R/flickr_functions.R")
-
+source("R/mastodon_token.R")
 
 # create twitter token
-narrowbotr_token <- rtweet::rtweet_bot(
+twitter_token <- rtweet::rtweet_bot(
   api_key =    Sys.getenv("TWITTER_CONSUMER_API_KEY"),
   api_secret = Sys.getenv("TWITTER_CONSUMER_API_SECRET"),
   access_token =    Sys.getenv("TWITTER_ACCESS_TOKEN"),
   access_secret =   Sys.getenv("TWITTER_ACCESS_TOKEN_SECRET")
 )
 
+toot_token <- mastodon_token(
+  access_token = Sys.getenv("MASTODON_TOKEN"),
+  type = "user",
+  instance = "botsin.space"
+)
 
 # select location ---------------------------------------------------------
 
@@ -98,12 +103,16 @@ if (download_res == 2) {
 # create finalised tweet message
 status_msg <- paste0(tweet_text, collapse = "")
 
-# post tweet --------------------------------------------------------------
+
+
+# submit post -------------------------------------------------------------
 
 # if testing do not post output
 if (Sys.getenv("NARROWBOT_TEST") == "true") {
-  message("Test mode, will not post to Twitter")
+  message("Test mode, will not post to Twitter/Mastodon")
 } else {
+  
+  # post to twitter
   rtweet::post_tweet(
     status = status_msg,
     media = tmp_file, 
@@ -111,8 +120,17 @@ if (Sys.getenv("NARROWBOT_TEST") == "true") {
     lat = place$lat,
     long = place$long,
     display_coordinates = TRUE,
-    token = narrowbotr_token
+    token = twitter_token
   )
+  
+  # post to mastodon
+  rtoot::post_toot(
+    status = status_msg,
+    media = tmp_file,
+    alt_text = alt_msg,
+    token = toot_token
+  )
+  
 }
 
 # delay to avoid message and cat mixing
@@ -120,3 +138,30 @@ Sys.sleep(1)
 
 # output tweet message for GH actions log
 cat(status_msg, paste("Alt text:", alt_msg), sep = "\n")
+
+
+# log output --------------------------------------------------------------
+
+if (Sys.getenv("NARROWBOT_MANUAL") == "true") {
+  post_type <- "MANUAL"
+} else if (Sys.getenv("NARROWBOT_TEST") == "true") {
+  post_type <- "TEST"
+} else {
+  post_type <- "AUTO"
+}
+
+if (is.null(flickr_photo)) {
+  log_text <- paste(Sys.time(), place$uid, "NA", post_type, sep = " | ")
+} else {
+  log_text <- paste(Sys.time(), place$uid, flickr_photo$photo_url, post_type, sep = " | ")
+}
+
+# write log
+if (Sys.getenv("NARROWBOT_TEST") == "true") {
+  message("Test mode, will not log")
+} else {
+  readr::write_lines(log_text, "narrowbotr.log", append = TRUE)
+}
+
+# show log output for GH actions log
+cat(log_text)
