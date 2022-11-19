@@ -33,9 +33,7 @@ jobs:
           git config --local user.name actions-user
           git config --local user.email "actions@github.com"
           git add narrowbotr.log
-          git commit --fixup 935998a
-          GIT_COMMITTER_DATE="$(date)
-          git commit --amend --no-edit --date "$(date)"
+          git commit -m "squash! AUTOBOTLOG"
           git push origin main
         env:
           REPO_KEY: ${{secrets.GITHUB_TOKEN}}
