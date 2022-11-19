@@ -33,7 +33,7 @@ jobs:
           git config --local user.name actions-user
           git config --local user.email "actions@github.com"
           git add narrowbotr.log
-          git commit -am "AUTO POST $(date)"
+          git commit --fixup 935998a
           git push origin main
         env:
           REPO_KEY: ${{secrets.GITHUB_TOKEN}}
