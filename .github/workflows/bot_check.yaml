@@ -4,9 +4,10 @@ on:
   push:
     branches:
       - main
-    paths-ignore:
-      - .github/workflows/R_check.yaml
-      - .github/workflows/bot_manual.yaml
+    paths:
+      - 'narrowbot.R'
+      - 'R/**'
+      - 'data/**'
 
 jobs:
   check-narrowbotR:
