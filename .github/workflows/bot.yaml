@@ -2,7 +2,7 @@ name: narrowbotR
 
 on:
   schedule:
-    - cron:  '10,40 7-20 * * *'
+    - cron:  '19 8-20/4 * * *'
 
 jobs:
   narrowbotR-post:
