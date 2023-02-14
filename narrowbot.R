@@ -104,8 +104,10 @@ if (download_res == 2) {
 status_msg <- paste0(tweet_text, collapse = "")
 
 
-
 # submit post -------------------------------------------------------------
+
+safely_tweet <- purrr::possibly(rtweet::post_tweet, otherwise = "tweet_error")
+safely_toot <- purrr::possibly(rtoot::post_toot, otherwise = "toot_error")
 
 # if testing do not post output
 if (Sys.getenv("NARROWBOT_TEST") == "true") {
@@ -113,7 +115,7 @@ if (Sys.getenv("NARROWBOT_TEST") == "true") {
 } else {
   
   # post to twitter
-  rtweet::post_tweet(
+  tweet_out <- safely_tweet(
     status = status_msg,
     media = tmp_file, 
     media_alt_text = alt_msg,
@@ -124,13 +126,20 @@ if (Sys.getenv("NARROWBOT_TEST") == "true") {
   )
   
   # post to mastodon
-  rtoot::post_toot(
+  toot_out <- safely_toot(
     status = status_msg,
     media = tmp_file,
     alt_text = alt_msg,
     token = toot_token
   )
   
+}
+
+# stop if post to both APIs fail
+if (is.null(tweet_out$error) & is.null(tweet_out$error)) {
+  message("Successfully tweeted and tooted")
+} else if (!is.null(tweet_out$error) & is.null(toot_out$error)) {
+  stop("Both tweet and toot unsuccessful")
 }
 
 # delay to avoid message and cat mixing
@@ -165,3 +174,10 @@ if (Sys.getenv("NARROWBOT_TEST") == "true") {
 
 # show log output for GH actions log
 cat(log_text)
+
+# flag to GH actions if either Twitter or Mastodon API have failed
+if (!is.null(tweet_out$error)) {
+  stop("Tweet unsuccessful")
+} else if (!is.null(toot_out$error)) {
+  stop("Toot unsucessful")
+}
