@@ -133,13 +133,13 @@ if (Sys.getenv("NARROWBOT_TEST") == "true") {
     token = toot_token
   )
   
-}
-
-# stop if post to both APIs fail
-if (is.null(tweet_out$error) & is.null(tweet_out$error)) {
-  message("Successfully tweeted and tooted")
-} else if (!is.null(tweet_out$error) & is.null(toot_out$error)) {
-  stop("Both tweet and toot unsuccessful")
+  # stop if post to both APIs fail
+  if (is.null(tweet_out$error) & is.null(tweet_out$error)) {
+    message("Successfully tweeted and tooted")
+  } else if (!is.null(tweet_out$error) & is.null(toot_out$error)) {
+    stop("Both tweet and toot unsuccessful")
+  }
+  
 }
 
 # delay to avoid message and cat mixing
@@ -176,8 +176,10 @@ if (Sys.getenv("NARROWBOT_TEST") == "true") {
 cat(log_text)
 
 # flag to GH actions if either Twitter or Mastodon API have failed
-if (!is.null(tweet_out$error)) {
-  stop("Tweet unsuccessful")
-} else if (!is.null(toot_out$error)) {
-  stop("Toot unsucessful")
+if (Sys.getenv("NARROWBOT_TEST") != "true") {
+  if (!is.null(tweet_out$error)) {
+    stop("Tweet unsuccessful")
+  } else if (!is.null(toot_out$error)) {
+    stop("Toot unsucessful")
+  }
 }
