@@ -37,6 +37,7 @@ place <- all_points %>%
 
 # tell user you have picked a place
 message("Picked ", place$name, 
+        ", uid: ", place$uid,
         ", lat: ", round(place$lat,4), 
         ", long: ", round(place$long,4))
 
