@@ -46,6 +46,9 @@ photos_for_location <- function(lat, long, key = NULL) {
   if (response$photos$total == 0) {
     message("No photos at location")
     photos <- NULL
+  } else if (length(response$photos$photo) == 0) {
+    message("No photos at location (photos list empty)")
+    photos <- NULL
   } else {
     photos <- response$photos$photo %>%
       tidyr::unnest(description) %>%
