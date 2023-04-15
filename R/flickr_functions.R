@@ -50,9 +50,9 @@ photos_for_location <- function(lat, long, key = NULL) {
     message("No photos at location (photos list empty)")
     photos <- NULL
   } else {
-    photos <- response$photos$photo %>%
-      tidyr::unnest(description) %>%
-      dplyr::rename(description = `_content`) %>%
+    photos <- response$photos$photo |>
+      tidyr::unnest(description) |>
+      dplyr::rename(description = `_content`) |>
       dplyr::mutate(distance = dplyr::row_number())
   }
   
@@ -137,7 +137,7 @@ eval_time <- function(date_taken, lat, long) {
     keep = c("sunrise", "goldenHourEnd", "goldenHour", "sunset")
   )
   
-  sun_score <- dplyr::as_tibble(sun_times) %>%
+  sun_score <- dplyr::as_tibble(sun_times) |>
     dplyr::mutate(
       ts = timestamp,
       sun_value = dplyr::case_when(
@@ -180,7 +180,7 @@ get_flickr_photo <- function(lat, long, key = NULL) {
   }
   
   # generate photo metrics
-  scored_photos <- photos %>%
+  scored_photos <- photos |>
     dplyr::select(id, title, description, datetaken, tags, distance) %>%
     dplyr::mutate(
       title_words = purrr::map_dbl(title, n_words),
@@ -192,7 +192,7 @@ get_flickr_photo <- function(lat, long, key = NULL) {
       canal_score = max(1, (canal_title + canal_description + canal_tags)),
       sun_value = eval_time(datetaken, lat, long),
       time_offset = as.numeric(Sys.time() - as.POSIXct(datetaken))
-    ) %>%
+    ) |>
     dplyr::filter(time_offset <= 5000)
   
   # return NULL if all photos filtered out
@@ -201,14 +201,14 @@ get_flickr_photo <- function(lat, long, key = NULL) {
   }
   
   # finish scoring the photos
-  scored_photos <- scored_photos %>%
+  scored_photos <- scored_photos |>
     dplyr::mutate(
       distance_score = rev(sqrt(distance)),
       offset_score = rev(rescale(time_offset, c(5,1))),
       photo_score = word_score * canal_score * sun_value * 
         distance_score * offset_score
-    ) %>%
-    dplyr::arrange(-photo_score) %>%
+    ) |>
+    dplyr::arrange(-photo_score) |>
     dplyr::filter(photo_score > 0)
   
   # return NULL if all photos filtered out
@@ -217,14 +217,14 @@ get_flickr_photo <- function(lat, long, key = NULL) {
   }
   
   # get id of selected photo
-  selected_photo_id <- scored_photos %>%
-    dplyr::slice_max(photo_score, n = 1) %>%
-    dplyr::sample_n(size = 1) %>%
-    pull(id)
+  selected_photo_id <- scored_photos |>
+    dplyr::slice_max(photo_score, n = 1) |>
+    dplyr::sample_n(size = 1) |>
+    dplyr::pull(id)
   
   # get details of selected photo
-  selected_photo <- photos %>%
-    dplyr::filter(id == selected_photo_id) %>%
+  selected_photo <- photos |>
+    dplyr::filter(id == selected_photo_id) |>
     dplyr::mutate(
       photo_url = paste("https://www.flickr.com/photos", 
                         owner, 
@@ -233,7 +233,7 @@ get_flickr_photo <- function(lat, long, key = NULL) {
       img_url = paste0("https://live.staticflickr.com/",
                        server, "/",
                        id,"_",secret,".jpg")
-    ) %>%
+    ) |>
     dplyr::select(id, owner, ownername, title, photo_url, img_url) %>%
     as.list()
   

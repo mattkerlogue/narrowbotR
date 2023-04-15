@@ -30,10 +30,10 @@ toot_token <- mastodon_token(
 all_points <- readRDS("data/all_points.RDS")
 
 # pick a point
-place <- all_points %>%
-  dplyr::select(-geometry) %>%
-  dplyr::filter(stringr::str_detect(feature, "culvert", negate = TRUE)) %>%
-  dplyr::sample_n(1) %>%
+place <- all_points |>
+  dplyr::select(-geometry) |>
+  dplyr::filter(stringr::str_detect(feature, "culvert", negate = TRUE)) |>
+  dplyr::sample_n(1) |>
   as.list()
 
 # tell user you have picked a place
@@ -166,9 +166,16 @@ if (Sys.getenv("NARROWBOT_MANUAL") == "true") {
 }
 
 if (is.null(flickr_photo)) {
-  log_text <- paste(Sys.time(), place$uid, "NA", post_type, sep = " | ")
+  log_text <- paste(
+    Sys.time(),
+    place$uid, "NA", post_type,
+    sep = " | "
+  )
 } else {
-  log_text <- paste(Sys.time(), place$uid, flickr_photo$photo_url, post_type, sep = " | ")
+  log_text <- paste(
+    Sys.time(), place$uid, flickr_photo$photo_url, post_type,
+    sep = " | "
+  )
 }
 
 # write log
