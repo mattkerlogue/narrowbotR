@@ -181,7 +181,7 @@ get_flickr_photo <- function(lat, long, key = NULL) {
   
   # generate photo metrics
   scored_photos <- photos |>
-    dplyr::select(id, title, description, datetaken, tags, distance) %>%
+    dplyr::select(id, title, description, datetaken, tags, distance) |>
     dplyr::mutate(
       title_words = purrr::map_dbl(title, n_words),
       description_words = purrr::map_dbl(description, n_words),
@@ -234,8 +234,14 @@ get_flickr_photo <- function(lat, long, key = NULL) {
                        server, "/",
                        id,"_",secret,".jpg")
     ) |>
-    dplyr::select(id, owner, ownername, title, photo_url, img_url) %>%
+    dplyr::select(id, owner, ownername, title, tags, photo_url, img_url) |>
     as.list()
+  
+  if (nchar(selected_photo$tags) < 3) {
+    selected_photo$tags <- NULL
+  } else {
+    selected_photo$tags <- paste0("#", strsplit(selected_photo$tags, " ")[[1]])
+  }
   
   return(selected_photo)
   

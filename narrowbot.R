@@ -4,10 +4,10 @@
 
 # set-up environment ------------------------------------------------------
 
-# load {dplyr} and flickr functions
-suppressPackageStartupMessages(library(dplyr))
-source("R/flickr_functions.R")
-source("R/mastodon_token.R")
+# load custom functions
+source("R/flickr_functions.R")  # flickr api functions
+source("R/mastodon_token.R")    # custom mastodon token function
+source("R/wales_check.R")       # check if in wales
 
 # # create twitter token
 # twitter_token <- rtweet::rtweet_bot(
@@ -37,7 +37,7 @@ place <- all_points |>
   as.list()
 
 # tell user you have picked a place
-message("Picked ", place$name, 
+message("Picked ", place$name,
         ", uid: ", place$uid,
         ", lat: ", round(place$lat,4), 
         ", long: ", round(place$long,4))
@@ -80,30 +80,67 @@ base_message <- c(
                   "#map=17/", place$lat, "/", place$long)
 )
 
+# set basic hashtags for all posts
+base_hashtags <- c("#canal", "#river", "#narrowboat", "#barge", "#gongoozler")
+
+# add location hashtags
+if (check_in_wales(place$lat, place$long, wales_sf)) {
+  location_hashtags <- c("#wales", "#uk")
+} else {
+  location_hashtags <- c("#england", "#uk")
+}
+
+photo_hashtags <- NULL
+
 # create alt text for tweet photo, add flickr info to tweet
 if (download_res == 2) {
-  tweet_text <- base_message
-  alt_msg <- paste0("A satellite image of the area containing ", 
+  msg_text <- base_message
+  alt_msg <- paste0("A satellite image of the area containing ",
                     place$name,
                     ". Provided by MapBox.")
+
+  photo_hashtags <- c("#mapbox", "#aerialphoto", "#aerialphotography",
+                      "#satelliteview")
+
 } else if (download_res == 1) {
-  tweet_text <- c(
+  msg_text <- c(
     base_message, "\n",
     "📸: Photo by ", stringr::str_squish(flickr_photo$ownername), " on Flickr ",
     flickr_photo$photo_url)
   alt_msg <- paste0(
-    "A photo titled ", "\"", flickr_photo$title, "\"" ,", taken near ", 
+    "A photo titled ", "\"", flickr_photo$title, "\"" ,", taken near ",
     place$name,
     " by ", 
     stringr::str_squish(flickr_photo$ownername),
     " on Flickr."
     )
+
+  if (is.null(flickr_photo$tags)) {
+    photo_hashtags <- "#flickr"
+  } else {
+    photo_hashtags <- c("#flickr", flickr_photo$tags)
+  }
+
 } else {
   stop("Something has gone wrong")
 }
 
-# create finalised tweet message
-status_msg <- paste0(tweet_text, collapse = "")
+# combine hashtags
+if (!is.null(photo_hashtags)) {
+  post_hashtags <- unique(
+    tolower(c(base_hashtags, location_hashtags, photo_hashtags))
+  )
+} else {
+  post_hashtags <- c(base_hashtags, location_hashtags)
+}
+
+post_hashtags <- paste0(post_hashtags, collapse = " ")
+
+# add hashtags to message
+msg_text <- c(msg_text, "\n\n", post_hashtags)
+
+# create finalised message
+status_msg <- paste0(msg_text, collapse = "")
 
 
 # submit post -------------------------------------------------------------
@@ -115,7 +152,7 @@ safely_toot <- purrr::possibly(rtoot::post_toot, otherwise = "toot_error")
 if (Sys.getenv("NARROWBOT_TEST") == "true") {
   message("Test mode, will not post to Twitter/Mastodon")
 } else {
-  
+
   # # post to twitter
   # tweet_out <- safely_tweet(
   #   status = status_msg,
@@ -126,7 +163,7 @@ if (Sys.getenv("NARROWBOT_TEST") == "true") {
   #   display_coordinates = TRUE,
   #   token = twitter_token
   # )
-  
+
   # post to mastodon
   toot_out <- safely_toot(
     status = status_msg,
@@ -134,11 +171,11 @@ if (Sys.getenv("NARROWBOT_TEST") == "true") {
     alt_text = alt_msg,
     token = toot_token
   )
-  
+
   if (!is.null(toot_out$error)) {
     stop("Toot unsucessful")
   }
-  
+
   # # stop if post to both APIs fail
   # if (is.null(tweet_out$error) & is.null(tweet_out$error)) {
   #   message("Successfully tweeted and tooted")
