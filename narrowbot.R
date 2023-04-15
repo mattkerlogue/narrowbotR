@@ -26,8 +26,9 @@ toot_token <- mastodon_token(
 
 # select location ---------------------------------------------------------
 
-# load points data
+# load points data & wales_sf
 all_points <- readRDS("data/all_points.RDS")
+wales_sf <- readRDS("data/wales_sf.RDS")
 
 # pick a point
 place <- all_points |>

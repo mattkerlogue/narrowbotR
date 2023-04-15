@@ -1,5 +1,3 @@
-wales_sf <- readRDS("data/wales_sf.RDS")
-
 check_in_wales <- function(lat, long, wales_sf) {
   
   chk_point <- sf::st_sfc(
