@@ -9,14 +9,15 @@ suppressPackageStartupMessages(library(dplyr))
 source("R/flickr_functions.R")
 source("R/mastodon_token.R")
 
-# create twitter token
-twitter_token <- rtweet::rtweet_bot(
-  api_key =    Sys.getenv("TWITTER_CONSUMER_API_KEY"),
-  api_secret = Sys.getenv("TWITTER_CONSUMER_API_SECRET"),
-  access_token =    Sys.getenv("TWITTER_ACCESS_TOKEN"),
-  access_secret =   Sys.getenv("TWITTER_ACCESS_TOKEN_SECRET")
-)
+# # create twitter token
+# twitter_token <- rtweet::rtweet_bot(
+#   api_key =    Sys.getenv("TWITTER_CONSUMER_API_KEY"),
+#   api_secret = Sys.getenv("TWITTER_CONSUMER_API_SECRET"),
+#   access_token =    Sys.getenv("TWITTER_ACCESS_TOKEN"),
+#   access_secret =   Sys.getenv("TWITTER_ACCESS_TOKEN_SECRET")
+# )
 
+# create mastodon token
 toot_token <- mastodon_token(
   access_token = Sys.getenv("MASTODON_TOKEN"),
   type = "user",
@@ -107,7 +108,7 @@ status_msg <- paste0(tweet_text, collapse = "")
 
 # submit post -------------------------------------------------------------
 
-safely_tweet <- purrr::possibly(rtweet::post_tweet, otherwise = "tweet_error")
+# safely_tweet <- purrr::possibly(rtweet::post_tweet, otherwise = "tweet_error")
 safely_toot <- purrr::possibly(rtoot::post_toot, otherwise = "toot_error")
 
 # if testing do not post output
@@ -115,16 +116,16 @@ if (Sys.getenv("NARROWBOT_TEST") == "true") {
   message("Test mode, will not post to Twitter/Mastodon")
 } else {
   
-  # post to twitter
-  tweet_out <- safely_tweet(
-    status = status_msg,
-    media = tmp_file, 
-    media_alt_text = alt_msg,
-    lat = place$lat,
-    long = place$long,
-    display_coordinates = TRUE,
-    token = twitter_token
-  )
+  # # post to twitter
+  # tweet_out <- safely_tweet(
+  #   status = status_msg,
+  #   media = tmp_file, 
+  #   media_alt_text = alt_msg,
+  #   lat = place$lat,
+  #   long = place$long,
+  #   display_coordinates = TRUE,
+  #   token = twitter_token
+  # )
   
   # post to mastodon
   toot_out <- safely_toot(
@@ -134,13 +135,17 @@ if (Sys.getenv("NARROWBOT_TEST") == "true") {
     token = toot_token
   )
   
-  # stop if post to both APIs fail
-  if (is.null(tweet_out$error) & is.null(tweet_out$error)) {
-    message("Successfully tweeted and tooted")
-  } else if (!is.null(tweet_out$error) & is.null(toot_out$error)) {
-    stop("Both tweet and toot unsuccessful")
+  if (!is.null(toot_out$error)) {
+    stop("Toot unsucessful")
   }
   
+  # # stop if post to both APIs fail
+  # if (is.null(tweet_out$error) & is.null(tweet_out$error)) {
+  #   message("Successfully tweeted and tooted")
+  # } else if (!is.null(tweet_out$error) & is.null(toot_out$error)) {
+  #   stop("Both tweet and toot unsuccessful")
+  # }
+
 }
 
 # delay to avoid message and cat mixing
@@ -175,12 +180,3 @@ if (Sys.getenv("NARROWBOT_TEST") == "true") {
 
 # show log output for GH actions log
 cat(log_text)
-
-# flag to GH actions if either Twitter or Mastodon API have failed
-if (Sys.getenv("NARROWBOT_TEST") != "true") {
-  if (!is.null(tweet_out$error)) {
-    stop("Tweet unsuccessful")
-  } else if (!is.null(toot_out$error)) {
-    stop("Toot unsucessful")
-  }
-}
