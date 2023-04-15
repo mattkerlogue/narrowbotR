@@ -185,12 +185,13 @@ get_flickr_photo <- function(lat, long, key = NULL) {
     dplyr::mutate(
       title_words = purrr::map_dbl(title, n_words),
       description_words = purrr::map_dbl(description, n_words),
-      word_score = title_words + log(max(description_words, 1)),
+      word_score = purrr::map2_dbl(title_words, description_words,
+                                   ~.x + log(max(.y, 1))),
       canal_title = purrr::map_dbl(title, canal_words_count),
       canal_description = purrr::map_dbl(description, canal_words_count),
       canal_tags = purrr::map_dbl(tags, canal_words_count),
-      canal_score = max(1, (canal_title + canal_description + canal_tags)),
-      sun_value = eval_time(datetaken, lat, long),
+      canal_score = 1 + canal_title + canal_description + canal_tags,
+      sun_value = purrr::map_dbl(datetaken, eval_time, lat, long),
       time_offset = as.numeric(Sys.time() - as.POSIXct(datetaken))
     ) |>
     dplyr::filter(time_offset <= 5000)
