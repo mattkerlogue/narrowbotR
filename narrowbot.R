@@ -7,7 +7,6 @@
 # load custom functions
 source("R/flickr_functions.R")  # flickr api functions
 source("R/mastodon_token.R")    # custom mastodon token function
-source("R/wales_check.R")       # check if in wales
 
 # # create twitter token
 # twitter_token <- rtweet::rtweet_bot(
@@ -28,11 +27,9 @@ toot_token <- mastodon_token(
 
 # load points data & wales_sf
 all_points <- readRDS("data/all_points.RDS")
-wales_sf <- readRDS("data/wales_sf.RDS")
 
 # pick a point
 place <- all_points |>
-  dplyr::select(-geometry) |>
   dplyr::filter(stringr::str_detect(feature, "culvert", negate = TRUE)) |>
   dplyr::sample_n(1) |>
   as.list()
@@ -85,7 +82,7 @@ base_message <- c(
 base_hashtags <- c("#canal", "#river", "#narrowboat", "#barge", "#gongoozler")
 
 # add location hashtags
-if (check_in_wales(place$lat, place$long, wales_sf)) {
+if (place$wales_marker) {
   location_hashtags <- c("#wales", "#uk")
 } else {
   location_hashtags <- c("#england", "#uk")
