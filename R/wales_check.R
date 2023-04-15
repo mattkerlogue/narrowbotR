@@ -1,4 +1,4 @@
-wales_sf <- readr::read_rds("data/wales_sf.RDS")
+wales_sf <- readRDS("data/wales_sf.RDS")
 
 check_in_wales <- function(lat, long, wales_sf) {
   
