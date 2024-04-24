@@ -1,5 +1,5 @@
 # narrowbotR
-# An R-based Twitter bot that tweets waterway features in England & Wales from
+# An R-based Mastodon bot that tweets waterway features in England & Wales from
 # the Canal & River Trust network.
 
 # set-up environment ------------------------------------------------------
@@ -7,14 +7,6 @@
 # load custom functions
 source("R/flickr_functions.R")  # flickr api functions
 source("R/mastodon_token.R")    # custom mastodon token function
-
-# # create twitter token
-# twitter_token <- rtweet::rtweet_bot(
-#   api_key =    Sys.getenv("TWITTER_CONSUMER_API_KEY"),
-#   api_secret = Sys.getenv("TWITTER_CONSUMER_API_SECRET"),
-#   access_token =    Sys.getenv("TWITTER_ACCESS_TOKEN"),
-#   access_secret =   Sys.getenv("TWITTER_ACCESS_TOKEN_SECRET")
-# )
 
 # create mastodon token
 toot_token <- mastodon_token(
@@ -143,24 +135,12 @@ status_msg <- paste0(msg_text, collapse = "")
 
 # submit post -------------------------------------------------------------
 
-# safely_tweet <- purrr::possibly(rtweet::post_tweet, otherwise = "tweet_error")
 safely_toot <- purrr::possibly(rtoot::post_toot, otherwise = "toot_error")
 
 # if testing do not post output
 if (Sys.getenv("NARROWBOT_TEST") == "true") {
   message("Test mode, will not post to Twitter/Mastodon")
 } else {
-
-  # # post to twitter
-  # tweet_out <- safely_tweet(
-  #   status = status_msg,
-  #   media = tmp_file, 
-  #   media_alt_text = alt_msg,
-  #   lat = place$lat,
-  #   long = place$long,
-  #   display_coordinates = TRUE,
-  #   token = twitter_token
-  # )
 
   # post to mastodon
   toot_out <- safely_toot(
@@ -170,16 +150,11 @@ if (Sys.getenv("NARROWBOT_TEST") == "true") {
     token = toot_token
   )
 
-  if (!is.null(toot_out$error)) {
-    stop("Toot unsucessful")
+  if (is.character(toot_out)) {
+    if (toot_out == "toot_error") {
+      stop("Toot unsuccessful")
+    }
   }
-
-  # # stop if post to both APIs fail
-  # if (is.null(tweet_out$error) & is.null(tweet_out$error)) {
-  #   message("Successfully tweeted and tooted")
-  # } else if (!is.null(tweet_out$error) & is.null(toot_out$error)) {
-  #   stop("Both tweet and toot unsuccessful")
-  # }
 
 }
 
