@@ -12,7 +12,7 @@ source("R/mastodon_token.R")    # custom mastodon token function
 toot_token <- mastodon_token(
   access_token = Sys.getenv("MASTODON_TOKEN"),
   type = "user",
-  instance = "botsin.space"
+  instance = "mastodon.social"
 )
 
 # select location ---------------------------------------------------------

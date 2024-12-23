@@ -1,4 +1,4 @@
-mastodon_token <- function(access_token = NULL, type = "user", instance = "botsin.space") {
+mastodon_token <- function(access_token = NULL, type = "user", instance = "mastodon.social") {
   
   if (is.null(access_token)){
     access_token <- Sys.getenv("MASTODON_TOKEN")
