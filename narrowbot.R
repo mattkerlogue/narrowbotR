@@ -191,8 +191,8 @@ if (Sys.getenv("NARROWBOT_TEST") == "true") {
 # delay to avoid message and cat mixing
 Sys.sleep(1)
 
-# output tweet message for GH actions log
-cat(status_msg, paste("Alt text:", alt_msg), sep = "\n")
+# output toot message for GH actions log
+cat(toot_msg, paste("Alt text:", alt_msg), sep = "\n")
 
 
 # log output --------------------------------------------------------------
