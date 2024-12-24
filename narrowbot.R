@@ -223,11 +223,11 @@ if (Sys.getenv("NARROWBOT_TEST") == "true") {
   message("Test mode, will not log")
 } else {
   readr::write_lines(log_text, "narrowbotr.log", append = TRUE)
+  if (is.character(toot_out) || is.character(bsky_out)) {
+    stop("Error with either Mastodon or Bsky but not both")
+  }
 }
 
 # show log output for GH actions log
 cat(log_text)
 
-if (is.character(toot_out) || is.character(bsky_out)) {
-  stop("Error with either Mastodon or Bsky but not both")
-}
