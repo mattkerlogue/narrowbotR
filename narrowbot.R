@@ -192,7 +192,7 @@ if (Sys.getenv("NARROWBOT_TEST") == "true") {
 Sys.sleep(1)
 
 # output toot message for GH actions log
-cat(toot_msg, paste("Alt text:", alt_msg), sep = "\n")
+cat(toot_text, paste("Alt text:", alt_msg), sep = "\n")
 
 
 # log output --------------------------------------------------------------
