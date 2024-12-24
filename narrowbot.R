@@ -71,7 +71,7 @@ base_message <- c(
 )
 
 # set basic hashtags for all posts
-base_hashtags <- c("#canal", "#river", "#narrowboat", "#barge", "#gongoozler")
+base_hashtags <- c("#canal", "#narrowboat")
 
 # add location hashtags
 if (place$wales_marker) {
@@ -104,12 +104,14 @@ if (download_res == 2) {
     stringr::str_squish(flickr_photo$ownername),
     " on Flickr."
     )
-
+  
   if (is.null(flickr_photo$tags)) {
     photo_hashtags <- "#flickr"
   } else {
     photo_hashtags <- c("#flickr", flickr_photo$tags)
   }
+
+
 
 } else {
   stop("Something has gone wrong")
@@ -124,18 +126,22 @@ if (!is.null(photo_hashtags)) {
   post_hashtags <- c(base_hashtags, location_hashtags)
 }
 
-post_hashtags <- paste0(post_hashtags, collapse = " ")
+hashtag_length <- sum(nchar(msg_text)) + cumsum(nchar(post_hashtags) + 1)
 
-# add hashtags to message
-msg_text <- c(msg_text, "\n\n", post_hashtags)
+# mastodon limit is 500 characters, bsky is 300
+toot_tags <- paste0(post_hashtags[hashtag_length < 495], collapse = " ")
+bsky_tags <- paste0(post_hashtags[hashtag_length < 295], collapse = " ")
 
-# create finalised message
-status_msg <- paste0(msg_text, collapse = "")
+# add hashtags to message and collapse
+toot_text <- paste0(c(msg_text, "\n\n", toot_tags), collapse = "")
+bsky_text <- paste0(c(msg_text, "\n\n", bsky_tags), collapse = "")
 
 
 # submit post -------------------------------------------------------------
 
 safely_toot <- purrr::possibly(rtoot::post_toot, otherwise = "toot_error")
+safely_bsky_photo <- purrr::possibly(bskyr::bs_upload_blob, otherwise = "bsky_photo_error")
+safely_bsky_post <- purrr::possibly(bskyr::bs_post, otherwise = "bsky_error", quiet = FALSE)
 
 # if testing do not post output
 if (Sys.getenv("NARROWBOT_TEST") == "true") {
@@ -144,15 +150,39 @@ if (Sys.getenv("NARROWBOT_TEST") == "true") {
 
   # post to mastodon
   toot_out <- safely_toot(
-    status = status_msg,
+    status = toot_text,
     media = tmp_file,
     alt_text = alt_msg,
     token = toot_token
   )
 
-  if (is.character(toot_out)) {
+  # upload media to bsky
+  bsky_img_blob <- safely_bsky_photo(
+    blob = tmp_file, clean = FALSE
+  )
+
+  # if media upload successful then make a post
+  if (!is.character(bsky_img_blob)) {
+    bsky_out <- safely_bsky_post(
+      text = bsky_text,
+      images = bsky_img_blob,
+      images_alt = alt_msg
+    )
+  } else {
+    bsky_out <- "bsky_photo_error"
+  }
+
+  if (is.character(toot_out) && is.character(bsky_out)) {
+    stop("bot error - did not post to mastodon or bsky")
+  } else if (is.character(toot_out) || is.character(bsky_out)) {
+
     if (toot_out == "toot_error") {
-      stop("Toot unsuccessful")
+      warning("Toot unsuccessful")
+    }
+    if (bsky_out == "bsky_photo_error") {
+      warning("bsky media upload unsuccessful")
+    } else if (bsky_out == "bsky_error") {
+      warning("bsky post unsuccessful")
     }
   }
 
@@ -197,3 +227,7 @@ if (Sys.getenv("NARROWBOT_TEST") == "true") {
 
 # show log output for GH actions log
 cat(log_text)
+
+if (is.character(toot_out) || is.character(bsky_out)) {
+  stop("Error with either Mastodon or Bsky but not both")
+}

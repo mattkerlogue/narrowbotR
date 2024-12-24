@@ -13,6 +13,8 @@ jobs:
       TWITTER_ACCESS_TOKEN_SECRET: ${{ secrets.TWITTER_ACCESS_TOKEN_SECRET }}
       MAPBOX_PAT: ${{ secrets.MAPBOX_PAT }}
       MASTODON_TOKEN: ${{ secrets.MASTODON_TOKEN }}
+      BLUESKY_APP_USER: ${{ secrets.BLUESKY_APP_USER }}
+      BLUESKY_APP_PASS: ${{ secrets.BLUESKY_APP_PASS }}
       NARROWBOT_MANUAL: "true"
     steps:
       - uses: actions/checkout@v4
