@@ -8,6 +8,7 @@ on:
       - 'narrowbot.R'
       - 'R/**'
       - 'data/**'
+  workflow_dispatch:
 
 jobs:
   check-narrowbotR:
