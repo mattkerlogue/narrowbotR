@@ -233,7 +233,7 @@ get_flickr_photo <- function(lat, long, key = NULL) {
                         sep = "/"),
       img_url = paste0("https://live.staticflickr.com/",
                        server, "/",
-                       id,"_",secret,".jpg")
+                       id,"_",secret,"_b.jpg")
     ) |>
     dplyr::select(id, owner, ownername, title, tags, photo_url, img_url) |>
     as.list()
