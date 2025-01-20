@@ -7,6 +7,7 @@
 # load custom functions
 source("R/flickr_functions.R")  # flickr api functions
 source("R/mastodon_token.R")    # custom mastodon token function
+source("R/bskyr_post.R")    # custom mastodon token function
 
 # create mastodon token
 toot_token <- mastodon_token(
