@@ -66,8 +66,6 @@ base_message <- c(
   "📍: ", place$name, "\n",
   "ℹ️: ", place$obj_type_label, "\n",
   "🗺: ",  paste0("https://www.openstreetmap.org/",
-                  "?mlat=", place$lat,
-                  "&mlon=", place$long,
                   "#map=17/", place$lat, "/", place$long)
 )
 
@@ -127,7 +125,9 @@ if (!is.null(photo_hashtags)) {
   post_hashtags <- c(base_hashtags, location_hashtags)
 }
 
-hashtag_length <- sum(nchar(msg_text)) + cumsum(nchar(post_hashtags) + 1)
+# evaluate length
+hashtag_length <- sum(stringi::stri_numbytes(msg_text)) + 
+  cumsum(stringi::stri_numbytes(post_hashtags) + 1)
 
 # mastodon limit is 500 characters, bsky is 300
 toot_tags <- paste0(post_hashtags[hashtag_length < 495], collapse = " ")
@@ -157,16 +157,11 @@ if (Sys.getenv("NARROWBOT_TEST") == "true") {
     token = toot_token
   )
 
-  # upload media to bsky
-  bsky_img_blob <- safely_bsky_photo(
-    blob = tmp_file, clean = FALSE
-  )
-
   # if media upload successful then make a post
   if (!is.character(bsky_img_blob)) {
     bsky_out <- safely_bsky_post(
       text = bsky_text,
-      images = bsky_img_blob,
+      images = tmp_file,
       images_alt = alt_msg
     )
   } else {
