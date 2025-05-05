@@ -197,6 +197,8 @@ if (Sys.getenv("NARROWBOT_MANUAL") == "true") {
   post_type <- "MANUAL"
 } else if (Sys.getenv("NARROWBOT_TEST") == "true") {
   post_type <- "TEST"
+} else if (interactive()) {
+  post_type <- "DEV"
 } else {
   post_type <- "AUTO"
 }
@@ -225,5 +227,6 @@ if (Sys.getenv("NARROWBOT_TEST") == "true") {
 }
 
 # show log output for GH actions log
+Sys.sleep(1)
 cat(log_text)
 
