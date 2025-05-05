@@ -160,15 +160,19 @@ if (Sys.getenv("NARROWBOT_TEST") == "true") {
     images_alt = alt_msg
   )
 
+  if (is.data.frame(bsky_out)) {
+    message("bsky post successful")
+  }
+
   if (is.character(toot_out) && is.character(bsky_out)) {
     stop("bot error - did not post to mastodon or bsky")
   }
 
-  if (toot_out == "toot_error") {
+  if (is.character(toot_out) && toot_out == "toot_error") {
     warning("Toot unsuccessful")
   }
 
-  if (bsky_out == "bsky_error") {
+  if (is.character(bsky_out) && bsky_out == "bsky_error") {
     warning("bsky post unsuccessful")
   }
   
