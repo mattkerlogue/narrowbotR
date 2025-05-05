@@ -110,8 +110,6 @@ if (download_res == 2) {
     photo_hashtags <- c("#flickr", flickr_photo$tags)
   }
 
-
-
 } else {
   stop("Something has gone wrong")
 }
@@ -141,8 +139,7 @@ bsky_text <- paste0(c(msg_text, "\n\n", bsky_tags), collapse = "")
 # submit post -------------------------------------------------------------
 
 safely_toot <- purrr::possibly(rtoot::post_toot, otherwise = "toot_error")
-safely_bsky_photo <- purrr::possibly(bskyr::bs_upload_blob, otherwise = "bsky_photo_error")
-safely_bsky_post <- purrr::possibly(bskyr::bs_post, otherwise = "bsky_error", quiet = FALSE)
+safely_bsky_post <- purrr::possibly(bskyr::bs_post, otherwise = "bsky_error")
 
 # if testing do not post output
 if (Sys.getenv("NARROWBOT_TEST") == "true") {
@@ -157,31 +154,24 @@ if (Sys.getenv("NARROWBOT_TEST") == "true") {
     token = toot_token
   )
 
-  # if media upload successful then make a post
-  if (!is.character(bsky_img_blob)) {
-    bsky_out <- safely_bsky_post(
-      text = bsky_text,
-      images = tmp_file,
-      images_alt = alt_msg
-    )
-  } else {
-    bsky_out <- "bsky_photo_error"
-  }
+  bsky_out <- safely_bsky_post(
+    text = bsky_text,
+    images = tmp_file,
+    images_alt = alt_msg
+  )
 
   if (is.character(toot_out) && is.character(bsky_out)) {
     stop("bot error - did not post to mastodon or bsky")
-  } else if (is.character(toot_out) || is.character(bsky_out)) {
-
-    if (toot_out == "toot_error") {
-      warning("Toot unsuccessful")
-    }
-    if (bsky_out == "bsky_photo_error") {
-      warning("bsky media upload unsuccessful")
-    } else if (bsky_out == "bsky_error") {
-      warning("bsky post unsuccessful")
-    }
   }
 
+  if (toot_out == "toot_error") {
+    warning("Toot unsuccessful")
+  }
+
+  if (bsky_out == "bsky_error") {
+    warning("bsky post unsuccessful")
+  }
+  
 }
 
 # delay to avoid message and cat mixing
@@ -189,7 +179,6 @@ Sys.sleep(1)
 
 # output toot message for GH actions log
 cat(toot_text, paste("Alt text:", alt_msg), sep = "\n")
-
 
 # log output --------------------------------------------------------------
 
